@@ -1,3 +1,5 @@
+#pragma once
+
 const float STEP_SIZE = 0.1;
 const float EVOLUTIONS_PER_FRAME = 1;
 

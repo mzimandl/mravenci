@@ -1,11 +1,12 @@
+#pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <iostream>
 
 #include "classes.cpp"
-#include "mathpp.cpp"
-#include "config.cpp"
+#include "math.cpp"
+#include "config.h"
 
 using namespace std;
 
@@ -22,8 +23,8 @@ enum AntTypes {
 };
 
 const string texturePaths[TEXTURE_COUNT] = {
-    "ant.png",
-    "colony.png"
+    "data/img/ant.png",
+    "data/img/colony.png"
 };
 
 // does not work properly as class member (???)

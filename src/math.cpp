@@ -1,3 +1,6 @@
+#pragma once
+#include <cmath>
+
 // quick square root
 float qsqrt(const float &n) 
 {
