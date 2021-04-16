@@ -1,13 +1,8 @@
-#pragma once
+#include "math.h"
+
 #include <cmath>
 
-// quick square root
-float qsqrt(const float &n) 
-{
-   static union{int i; float f;} u;
-   u.i = 0x5F375A86 - (*(int*)&n >> 1);
-   return (int(3) - n * u.f * u.f) * n * u.f * 0.5f;
-}
+
 
 // inverse quick square root !!! NO DIVISION !!!
 float iqsqrt(const float &n) 
@@ -15,6 +10,12 @@ float iqsqrt(const float &n)
    static union{int i; float f;} u;
    u.i = 0x5F375A86 - (*(int*)&n >> 1);
    return (int(3) - n * u.f * u.f) * u.f * 0.5f;
+}
+
+// quick square root
+float qsqrt(const float &n) 
+{   
+   return n * iqsqrt(n);
 }
 
 float calculateAngle(float dx, float dy, float dist) {

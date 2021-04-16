@@ -1,14 +1,15 @@
-#pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <iostream>
 
-#include "classes.cpp"
-#include "math.cpp"
-#include "config.h"
+#include "settings.h"
+#include "cObject.h"
+#include "cTexture.h"
+#include "math.h"
 
 using namespace std;
+
 
 
 enum TextureNames {
@@ -114,7 +115,7 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    colony = new Object(textures[TEXTURE_COLONY]);
+    colony = new Object(textures[TEXTURE_COLONY], 0);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
 
     ants.resize(NUMBER_OF_ANTS);
