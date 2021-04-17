@@ -36,7 +36,7 @@ class SDL_App {
         Texture *textures[TEXTURE_COUNT];
         vector<Object *> ants;
         Object *colony;
-        Uint8 feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
+        float feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
 
         void renderAnts();
         void renderFeromones();
@@ -85,7 +85,7 @@ bool SDL_App::initSDL() {
     }
 
     //Create window
-    window = SDL_CreateWindow("Mravenci", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    window = SDL_CreateWindow("Mravenci", 1920, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if (window == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window: %s", SDL_GetError());
         return false;
@@ -151,7 +151,8 @@ void SDL_App::renderFeromones() {
     for (int i = 0; i < SCREEN_WIDTH; i++) {
         for (int j = 0; j < SCREEN_HEIGHT; j++) {
             if (feromones[ANT_EMPTY][i][j] > 0) {
-                SDL_SetRenderDrawColor(renderer, 255 - feromones[ANT_EMPTY][i][j], 255 - feromones[ANT_EMPTY][i][j], 255, 255);
+                int intensity = (int)(255*feromones[ANT_EMPTY][i][j]);
+                SDL_SetRenderDrawColor(renderer, 255 - intensity, 255 - intensity, 255, 255);
                 SDL_RenderDrawPoint(renderer, i, j);
             }
         }
@@ -204,7 +205,7 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     int y = (int)round(ant->pos.y);
     
     float diffA = 0;
-    int total = 0;
+    float total = 0;
     const int area2 = area*area;
     
     for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
@@ -259,8 +260,8 @@ void SDL_App::produceFeromones(Object* ant) {
     int y = (int)round(ant->pos.y);
     if (x < 0) {x = 0;} else if (x >= SCREEN_WIDTH) {x = SCREEN_WIDTH - 1;}
     if (y < 0) {y = 0;} else if (y >= SCREEN_HEIGHT) {y = SCREEN_HEIGHT - 1;}
-    if (feromones[ant->type][x][y] > 255 - FEROMONE_PRODUCTION) {
-        feromones[ant->type][x][y] = 255;
+    if (feromones[ant->type][x][y] > 1 - FEROMONE_PRODUCTION) {
+        feromones[ant->type][x][y] = 1;
     } else {
         feromones[ant->type][x][y] += FEROMONE_PRODUCTION;
     }
