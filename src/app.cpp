@@ -36,7 +36,9 @@ class SDL_App {
         Texture *textures[TEXTURE_COUNT];
         vector<Object *> ants;
         Object *colony;
+        
         float feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
+        SDL_Texture* feromoneTexture;
 
         void renderAnts();
         void renderFeromones();
@@ -122,6 +124,17 @@ void SDL_App::initObjects() {
     colony = new Object(textures[TEXTURE_COLONY], 0);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
 
+    feromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    
+    Uint8* pixels;
+    int pitch;
+
+    SDL_LockTexture(feromoneTexture, NULL, (void**)&pixels, &pitch);
+    for (int i = 0; i < pitch*SCREEN_HEIGHT; i++) {
+        pixels[i] = 255;
+    }
+    SDL_UnlockTexture(feromoneTexture);
+
     ants.resize(NUMBER_OF_ANTS);
     for (auto& ant : ants) {
         ant = new Object(textures[TEXTURE_ANT], ANT_EMPTY);
@@ -135,6 +148,10 @@ void SDL_App::destroy() {
     SDL_DestroyWindow(window);
     window = NULL;
 
+    SDL_DestroyTexture(feromoneTexture);
+    feromoneTexture = NULL;
+
+    delete colony;
     for (auto& ant : ants) {
         delete ant;
     }
@@ -148,15 +165,22 @@ void SDL_App::destroy() {
 }
 
 void SDL_App::renderFeromones() {
+    Uint8* pixels;
+    int pitch;
+
+    SDL_LockTexture(feromoneTexture, NULL, (void**)&pixels, &pitch);
+
     for (int i = 0; i < SCREEN_WIDTH; i++) {
         for (int j = 0; j < SCREEN_HEIGHT; j++) {
             if (feromones[ANT_EMPTY][i][j] > 0) {
                 int intensity = (int)(255*feromones[ANT_EMPTY][i][j]);
-                SDL_SetRenderDrawColor(renderer, 255 - intensity, 255 - intensity, 255, 255);
-                SDL_RenderDrawPoint(renderer, i, j);
+                pixels[4*i + pitch*j + 1] = 255 - intensity;
+                pixels[4*i + pitch*j + 2] = 255 - intensity;
             }
         }
     }
+    SDL_UnlockTexture(feromoneTexture);
+    SDL_RenderCopy(renderer, feromoneTexture, NULL, NULL);
 }
 
 void SDL_App::renderAnts() {

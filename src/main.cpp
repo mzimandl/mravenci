@@ -8,6 +8,12 @@
 
 
 int main(int argc, char *argv[]) {
+    bool measurePerformance = false;
+    for (int i=0; i<argc; i++) {
+        if (strcmp(argv[i], "--measure-performance")) {
+            measurePerformance = true;
+        }
+    }
 
     SDL_App app;
 
@@ -26,13 +32,6 @@ int main(int argc, char *argv[]) {
     bool quit = false;
     SDL_Event e;
     Timer capTimer;
-
-    bool measurePerformance = false;
-    for (int i=0; i<argc; i++) {
-        if (strcmp(argv[i], "--measure-performance")) {
-            measurePerformance = true;
-        }
-    }
 
     int measureCycles = 0;
     int calculationTime = 0;
