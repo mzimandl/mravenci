@@ -19,7 +19,17 @@ float qsqrt(const float &n)
 }
 
 float calculateAngle(float dx, float dy, float dist) {
-    float pointA = 180 * asin(dy/dist) / M_PI;
+    float pointA = 180 * asin(dy/dist) * M_1_PI;
+    if (dx < 0) {
+        pointA = 180 - pointA;
+    } else if (dx > 0 and dy < 0) {
+        pointA = 360 + pointA;
+    }
+    return pointA;
+}
+
+float calculateAngleI(float dx, float dy, float idist) {
+    float pointA = 180 * asin(dy*idist) * M_1_PI;
     if (dx < 0) {
         pointA = 180 - pointA;
     } else if (dx > 0 and dy < 0) {

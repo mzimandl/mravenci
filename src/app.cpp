@@ -179,17 +179,17 @@ void SDL_App::deflectAnt(Object* ant, float x, float y, int dangerDist, int crit
     if (abs(dx) < dangerDist and abs(dy) < dangerDist) {        
         float dist2 = dx*dx + dy*dy;
         if (dist2 < dangerDist*dangerDist) {   
-            float dist = qsqrt(dist2);     
+            float idist = iqsqrt(dist2);     
 
             // cursor position and ant velocity angle
-            float dA = calculateAngle(dx, dy, dist) - ant->a;
+            float dA = calculateAngleI(dx, dy, idist) - ant->a;
             if (dA > 180) {
                 dA -= 360;
             } else if (dA < -180) {
                 dA += 360;
             }
 
-            float diff = (180 - abs(dA))*min((float)1.0, criticalDist/dist);
+            float diff = (180 - abs(dA))*min((float)1.0, criticalDist*idist);
             if (dA > 0) {
                 ant->a -= diff;
             } else if (dA < 0) {
@@ -205,6 +205,7 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     
     float diffA = 0;
     int total = 0;
+    const int area2 = area*area;
     
     for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
         for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
@@ -213,10 +214,9 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
                 float dy = j - ant->pos.y;
 
                 if (dx != 0 or dy != 0) {
-                    float dist = qsqrt(dx*dx + dy*dy);
-                    
-                    if (dist < area) {
-                        float dA = calculateAngle(dx, dy, dist) - ant->a;
+                    float dist2 = dx*dx + dy*dy;
+                    if (dist2 < area2) {
+                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - ant->a;
                         if (dA > 180) {
                             dA -= 360;
                         } else if (dA < -180) {
@@ -287,7 +287,7 @@ void SDL_App::handleAnts() {
         }
     }
 
-    for (auto ant : ants) {
+    for (auto& ant : ants) {
         produceFeromones(ant);
     }
 }
@@ -307,9 +307,8 @@ void SDL_App::wallCollision(Object* ant) {
 bool inRange(Object* obj1, Object* obj2, int d) {
     int dx = obj1->pos.x - obj2->pos.x; 
     int dy = obj1->pos.y - obj2->pos.y;
-    if (abs(dx) < 25 and abs(dy) < 25) {
-        float dist = qsqrt(dx*dx + dy*dy);
-        if (dist < 25) {
+    if (abs(dx) < d and abs(dy) < d) {
+        if (dx*dx + dy*dy < d*d) {
             return true;
         }
     }

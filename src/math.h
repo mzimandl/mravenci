@@ -10,4 +10,6 @@ float iqsqrt(const float &n);
 
 float calculateAngle(float dx, float dy, float dist);
 
+float calculateAngleI(float dx, float dy, float idist);
+
 void normalizeAngle(float &a);
