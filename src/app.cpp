@@ -18,18 +18,15 @@ enum TextureNames {
     TEXTURE_COUNT
 };
 
-enum AntTypes {
-    ANT_EMPTY,
-    ANT_TYPES_COUNT
-};
-
-const string texturePaths[TEXTURE_COUNT] = {
+const string TEXTURE_PATHS[TEXTURE_COUNT] = {
     "data/img/ant.png",
     "data/img/colony.png"
 };
 
-// does not work properly as class member (???)
-Uint8 feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
+enum AntTypes {
+    ANT_EMPTY,
+    ANT_TYPES_COUNT
+};
 
 class SDL_App {
     private:
@@ -39,7 +36,7 @@ class SDL_App {
         Texture *textures[TEXTURE_COUNT];
         vector<Object *> ants;
         Object *colony;
-        
+        Uint8 feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
 
         void renderAnts();
         void renderFeromones();
@@ -64,7 +61,14 @@ class SDL_App {
 };
 
 SDL_App::SDL_App() {
-
+    // for some reason class member array has to be initilized manually
+    for (auto& f_type: feromones) {
+        for (auto& f_x : f_type) {
+            for (auto& f_y : f_x) {
+                f_y = 0;
+            }
+        }
+    }
 }
 
 SDL_App::~SDL_App() {
@@ -81,7 +85,7 @@ bool SDL_App::initSDL() {
     }
 
     //Create window
-    window = SDL_CreateWindow("Mravenci", NULL, NULL, SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+    window = SDL_CreateWindow("Mravenci", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if (window == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window: %s", SDL_GetError());
         return false;
@@ -107,7 +111,7 @@ bool SDL_App::initSDL() {
 
 bool SDL_App::loadMedia() {
     for (int i = 0; i < TEXTURE_COUNT; i++) {
-        textures[i] = new Texture(renderer, texturePaths[i]);
+        textures[i] = new Texture(renderer, TEXTURE_PATHS[i]);
         if (textures[i] == NULL) {return false;}
     }
 
@@ -155,18 +159,7 @@ void SDL_App::renderFeromones() {
 }
 
 void SDL_App::renderAnts() {
-    // render ants as points
-    /*
-    SDL_FPoint antsPos[NUMBER_OF_ANTS];
-    for (auto ant : ants) {
-        antsPos[i] = ant->pos;
-    }
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderDrawPointsF(renderer, antsPos, NUMBER_OF_ANTS);
-    */
-
-    // render ants as textures
-    for (auto ant : ants) {
+    for (auto& ant : ants) {
         ant->render(ANT_SCALE_RENDER);
     }
 }
