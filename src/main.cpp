@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
         }
         
         if (perfTimer) { perfTimer->start(); }
-        for (int i=0; i<EVOLUTIONS_PER_FRAME; i++) {
+        for (int i=0; i<STEPS_PER_FRAME; i++) {
             app.handleAnts();
         }
         if (perfTimer) {

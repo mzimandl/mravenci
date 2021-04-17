@@ -1,7 +1,7 @@
 #pragma once
 
 const float STEP_SIZE = 0.1;
-const float EVOLUTIONS_PER_FRAME = 1;
+const int STEPS_PER_FRAME = 1;
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 1680;
