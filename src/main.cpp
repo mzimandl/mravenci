@@ -5,11 +5,9 @@
 #include "app.cpp"
 #include "classes/cTimer.h"
 
-using namespace std;
 
 
-
-int main(int argc, char* args[]) {
+int main(int argc, char *argv[]) {
 
     SDL_App app;
 
@@ -29,7 +27,26 @@ int main(int argc, char* args[]) {
     SDL_Event e;
     Timer capTimer;
 
+    bool measurePerformance = false;
+    for (int i=0; i<argc; i++) {
+        if (strcmp(argv[i], "--measure-performance")) {
+            measurePerformance = true;
+        }
+    }
+
+    int measureCycles = 0;
+    Timer* perfTimer = NULL;
+    if (measurePerformance) {
+        perfTimer = new Timer();
+        perfTimer->start();
+    }
+
     while (!quit) {
+        if (perfTimer and perfTimer->getTicks() > 1000) {
+            std::cout << "performance " << perfTimer->getTicks()/measureCycles << "ms/cycle" << std::endl;
+            perfTimer->start();
+            measureCycles = 0;
+        }
         capTimer.start();
 
         while (SDL_PollEvent(&e)) {
@@ -45,8 +62,17 @@ int main(int argc, char* args[]) {
 
         int frameTicks = capTimer.getTicks();
         if (frameTicks < SCREEN_TICKS_PER_FRAME) {
+            if (perfTimer) { perfTimer->pause(); }
             SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
         }
+        if (perfTimer) {
+            perfTimer->unpause();
+            measureCycles++;
+        }
+    }
+
+    if (perfTimer) {
+        delete perfTimer;
     }
 
     return 0;
