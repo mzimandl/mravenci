@@ -35,6 +35,8 @@ int main(int argc, char *argv[]) {
     }
 
     int measureCycles = 0;
+    int calculationTime = 0;
+    int renderingTime = 0;
     Timer* perfTimer = NULL;
     if (measurePerformance) {
         perfTimer = new Timer();
@@ -42,12 +44,15 @@ int main(int argc, char *argv[]) {
     }
 
     while (!quit) {
-        if (perfTimer and perfTimer->getTicks() > 1000) {
-            std::cout << "performance " << perfTimer->getTicks()/measureCycles << "ms/cycle" << std::endl;
-            perfTimer->start();
+        capTimer.start();
+        if (perfTimer and measureCycles > 10) {
+            std::cout << "(ms) calculation: " << calculationTime/measureCycles;
+            std::cout << " rendering: " << renderingTime/measureCycles;
+            std::cout << " total: " << (calculationTime + renderingTime)/measureCycles << std::endl;
+            calculationTime = 0;
+            renderingTime = 0;
             measureCycles = 0;
         }
-        capTimer.start();
 
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
@@ -55,19 +60,23 @@ int main(int argc, char *argv[]) {
             }
         }
         
+        if (perfTimer) { perfTimer->start(); }
         for (int i=0; i<EVOLUTIONS_PER_FRAME; i++) {
             app.handleAnts();
         }
+        if (perfTimer) {
+            calculationTime += perfTimer->getTicks();
+            perfTimer->start();
+        }
         app.render();
+        if (perfTimer) {
+            renderingTime += perfTimer->getTicks();
+            measureCycles ++;
+        }
 
         int frameTicks = capTimer.getTicks();
         if (frameTicks < SCREEN_TICKS_PER_FRAME) {
-            if (perfTimer) { perfTimer->pause(); }
             SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
-        }
-        if (perfTimer) {
-            perfTimer->unpause();
-            measureCycles++;
         }
     }
 
