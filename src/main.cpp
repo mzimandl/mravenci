@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #include "app.cpp"
-#include "cTimer.h"
+#include "classes/cTimer.h"
 
 using namespace std;
 

@@ -4,9 +4,9 @@
 #include <iostream>
 
 #include "settings.h"
-#include "cObject.h"
-#include "cTexture.h"
 #include "math.h"
+#include "classes/cObject.h"
+#include "classes/cTexture.h"
 
 using namespace std;
 
