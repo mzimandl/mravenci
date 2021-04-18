@@ -8,13 +8,13 @@
 
 int main(int argc, char *argv[]) {
     bool measurePerformance = false;
+    bool enableMouse = false;
     for (int i=0; i<argc; i++) {
-        if (strcmp(argv[i], "--measure-performance")) {
-            measurePerformance = true;
-        }
+        if (strcmp(argv[i], "--measure-performance") == 0) { measurePerformance = true; }
+        if (strcmp(argv[i], "--enable-mouse") == 0) { enableMouse = true; }
     }
 
-    SDL_App app;
+    SDL_App app(enableMouse);
 
     if(!app.initSDL()) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialization failed");

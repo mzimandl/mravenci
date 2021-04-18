@@ -41,6 +41,9 @@ class SDL_App {
         float feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
         SDL_Texture* feromoneTexture;
 
+        bool cursorDeflect;
+        SDL_Point cursorPos;
+
         void renderAnts();
         void renderFeromones();
 
@@ -53,7 +56,7 @@ class SDL_App {
         void destroy();
 
     public:
-        SDL_App();
+        SDL_App(bool enableMouse);
         ~SDL_App();
 
         bool initSDL();
@@ -63,8 +66,8 @@ class SDL_App {
         void render();
 };
 
-SDL_App::SDL_App() {
-    // for some reason class member array has to be initilized manually
+SDL_App::SDL_App(bool enableMouse) {
+    // class member array has to be initilized manually
     for (auto& f_type: feromones) {
         for (auto& f_x : f_type) {
             for (auto& f_y : f_x) {
@@ -72,6 +75,9 @@ SDL_App::SDL_App() {
             }
         }
     }
+
+    // enable cursor interaction
+    cursorDeflect = enableMouse;
 }
 
 SDL_App::~SDL_App() {
@@ -88,7 +94,7 @@ bool SDL_App::initSDL() {
     }
 
     //Create window
-    window = SDL_CreateWindow("Mravenci", 1920, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    window = SDL_CreateWindow("Mravenci", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window: %s", SDL_GetError());
         return false;
@@ -291,8 +297,9 @@ void SDL_App::produceFeromones(Object* ant) {
 }
 
 void SDL_App::handleAnts() {
-    // SDL_Point cursor;
-    // SDL_GetMouseState(&cursor.x, &cursor.y);
+    if (cursorDeflect) {
+        SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
+    }
 
     decayFeromones();
     
@@ -301,7 +308,9 @@ void SDL_App::handleAnts() {
     {
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
-            // deflectAnt(ants[i], (float)cursor.x, (float)cursor.y, CURSOR_DANGER, CURSOR_CRITICAL);
+            if (cursorDeflect) {
+                deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
+            }
             wallCollision(ants[i]);
             followFeromones(ants[i], FEROMONES_AREA, FEROMONES_ANGLE);
             ants[i]->randomTurn(MAX_RANDOM_TURN);
