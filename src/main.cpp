@@ -6,15 +6,19 @@
 
 
 
+struct Args {
+    bool measurePerformance;
+    bool enableMouse;
+};
+
 int main(int argc, char *argv[]) {
-    bool measurePerformance = false;
-    bool enableMouse = false;
+    Args args;
     for (int i=0; i<argc; i++) {
-        if (strcmp(argv[i], "--measure-performance") == 0) { measurePerformance = true; }
-        if (strcmp(argv[i], "--enable-mouse") == 0) { enableMouse = true; }
+        if (strcmp(argv[i], "--measure-performance") == 0) { args.measurePerformance = true; }
+        if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
     }
 
-    SDL_App app(enableMouse);
+    SDL_App app(args.enableMouse);
 
     if(!app.initSDL()) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialization failed");
@@ -28,19 +32,19 @@ int main(int argc, char *argv[]) {
 
     app.initObjects();
 
-    bool quit = false;
-    SDL_Event e;
-    Timer capTimer;
-
     int measureCycles = 0;
     int calculationTime = 0;
     int renderingTime = 0;
     Timer* perfTimer = NULL;
-    if (measurePerformance) {
+    if (args.measurePerformance) {
         perfTimer = new Timer();
         perfTimer->start();
     }
+    
+    Timer capTimer;
 
+    bool quit = false;
+    SDL_Event e;
     while (!quit) {
         capTimer.start();
         if (perfTimer and measureCycles > 10) {
