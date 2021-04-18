@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+
 #include "cTexture.h"
 
 
@@ -21,3 +22,5 @@ class Object {
         void render(float scale = 1);
         void setTexture(Texture* texture);
 };
+
+bool inRange(Object* obj1, Object* obj2, int d);

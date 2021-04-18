@@ -18,6 +18,6 @@ const int MAX_RANDOM_TURN = 30;
 const int CURSOR_DANGER = 500;
 const int CURSOR_CRITICAL = 2;
 const float FEROMONE_PRODUCTION = 0.3;
-const float FEROMONE_DECAY = 0.005;
+const float FEROMONE_DECAY = 0.001;
 const int FEROMONES_AREA = 15;
 const int FEROMONES_ANGLE = 25;

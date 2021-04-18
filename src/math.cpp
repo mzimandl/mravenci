@@ -1,6 +1,7 @@
-#include "math.h"
-
+#define _USE_MATH_DEFINES // for using cmath constants in windows
 #include <cmath>
+
+#include "math.h"
 
 
 

@@ -1,7 +1,8 @@
+#include <iostream>
+#include <vector>
+#include <omp.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <vector>
-#include <iostream>
 
 #include "settings.h"
 #include "math.h"
@@ -190,8 +191,6 @@ void SDL_App::renderAnts() {
 }
 
 void SDL_App::render() {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
     renderFeromones();
     renderAnts();
     colony->render();
@@ -327,15 +326,4 @@ void SDL_App::wallCollision(Object* ant) {
         if (ant->pos.y < 0) {ant->pos.y = 0;} else {ant->pos.y = SCREEN_HEIGHT-1;}
         ant->a = 360 - ant->a;
     }
-}
-
-bool inRange(Object* obj1, Object* obj2, int d) {
-    int dx = obj1->pos.x - obj2->pos.x; 
-    int dy = obj1->pos.y - obj2->pos.y;
-    if (abs(dx) < d and abs(dy) < d) {
-        if (dx*dx + dy*dy < d*d) {
-            return true;
-        }
-    }
-    return false;
 }

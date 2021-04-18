@@ -1,6 +1,5 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <omp.h>
 
 #include "app.cpp"
 #include "classes/cTimer.h"
