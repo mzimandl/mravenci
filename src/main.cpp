@@ -9,6 +9,7 @@
 struct Args {
     bool measurePerformance;
     bool enableMouse;
+    bool pause;
 };
 
 int main(int argc, char *argv[]) {
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
     for (int i=0; i<argc; i++) {
         if (strcmp(argv[i], "--measure-performance") == 0) { args.measurePerformance = true; }
         if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
+        if (strcmp(argv[i], "--pause") == 0) { args.pause = true; }
     }
 
     SDL_App app(args.enableMouse);
@@ -57,20 +59,40 @@ int main(int argc, char *argv[]) {
         }
 
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
+            switch (e.type) {
+                case SDL_KEYDOWN:
+                    switch (e.key.keysym.sym) {
+                        case SDLK_ESCAPE:
+                            quit = true;
+                            break;
+                        
+                        case SDLK_SPACE:
+                            args.pause = !args.pause;
+                            break;
+                    }
+                    break;
+
+                case SDL_QUIT:
+                    quit = true;
+                    break;
             }
         }
         
         if (perfTimer) { perfTimer->start(); }
-        for (int i=0; i<STEPS_PER_FRAME; i++) {
-            app.handleAnts();
+
+        if (!args.pause) {
+            for (int i=0; i<STEPS_PER_FRAME; i++) {
+                app.handleAnts();
+            }
         }
+
         if (perfTimer) {
             calculationTime += perfTimer->getTicks();
             perfTimer->start();
         }
+
         app.render();
+
         if (perfTimer) {
             renderingTime += perfTimer->getTicks();
             measureCycles ++;

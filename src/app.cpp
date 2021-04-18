@@ -69,9 +69,9 @@ class SDL_App {
 SDL_App::SDL_App(bool enableMouse) {
     // class member array has to be initilized manually
     for (auto& f_type: feromones) {
-        for (auto& f_x : f_type) {
-            for (auto& f_y : f_x) {
-                f_y = 0;
+        for (auto& f_col : f_type) {
+            for (auto& f_intensity : f_col) {
+                f_intensity = 0;
             }
         }
     }
