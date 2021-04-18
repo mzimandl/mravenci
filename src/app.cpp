@@ -273,11 +273,8 @@ void SDL_App::decayFeromones() {
         for (int i = 0; i < SCREEN_WIDTH; i++) {
             for (int j = 0; j < SCREEN_HEIGHT; j++) {
                 if (feromones[t][i][j] > 0) {
-                    if (feromones[t][i][j] < FEROMONE_DECAY) {
-                        feromones[t][i][j] = 0;
-                    } else {
-                        feromones[t][i][j] -= FEROMONE_DECAY;
-                    }
+                    feromones[t][i][j] -= FEROMONE_DECAY;
+                    if (feromones[t][i][j] < 0) { feromones[t][i][j] = 0; }
                 }
             }
         }
@@ -287,12 +284,9 @@ void SDL_App::decayFeromones() {
 void SDL_App::produceFeromones(Object* ant) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
-    if (x < 0) {x = 0;} else if (x >= SCREEN_WIDTH) {x = SCREEN_WIDTH - 1;}
-    if (y < 0) {y = 0;} else if (y >= SCREEN_HEIGHT) {y = SCREEN_HEIGHT - 1;}
-    if (feromones[ant->type][x][y] > 1 - FEROMONE_PRODUCTION) {
-        feromones[ant->type][x][y] = 1;
-    } else {
+    if (x >= 0 and x < SCREEN_WIDTH and y >= 0 and y < SCREEN_HEIGHT) {
         feromones[ant->type][x][y] += FEROMONE_PRODUCTION;
+        if (feromones[ant->type][x][y] > 1) { feromones[ant->type][x][y] = 1; }
     }
 }
 
@@ -311,12 +305,12 @@ void SDL_App::handleAnts() {
             if (cursorDeflect) {
                 deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
             }
-            wallCollision(ants[i]);
+
             followFeromones(ants[i], FEROMONES_AREA, FEROMONES_ANGLE);
             ants[i]->randomTurn(MAX_RANDOM_TURN);
             normalizeAngle(ants[i]->a);
-
             ants[i]->move(STEP_SIZE);
+            wallCollision(ants[i]); // ensures ants are inside screen area
         }
     }
 
@@ -327,12 +321,12 @@ void SDL_App::handleAnts() {
 
 void SDL_App::wallCollision(Object* ant) {
     if (ant->pos.x < 0 or ant->pos.x >= SCREEN_WIDTH) {
-        if (ant->pos.x < 0) {ant->pos.x = 0;} else {ant->pos.x = SCREEN_WIDTH-1;}
+        ant->pos.x = ant->pos.x < 0 ? 0 : SCREEN_WIDTH-1;
         ant->a = 180 - ant->a;
     }
     
     if (ant->pos.y < 0 or ant->pos.y >= SCREEN_HEIGHT) {
-        if (ant->pos.y < 0) {ant->pos.y = 0;} else {ant->pos.y = SCREEN_HEIGHT-1;}
+        ant->pos.y = ant->pos.y < 0 ? 0 : SCREEN_HEIGHT-1;
         ant->a = 360 - ant->a;
     }
 }
