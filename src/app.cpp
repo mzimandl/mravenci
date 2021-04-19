@@ -16,18 +16,25 @@ using namespace std;
 enum TextureNames {
     TEXTURE_ANT,
     TEXTURE_COLONY,
+    TEXTURE_FOOD,
+    TEXTURE_ANT_FOOD,
     TEXTURE_COUNT
 };
 
 const string TEXTURE_PATHS[TEXTURE_COUNT] = {
     "data/img/ant.png",
-    "data/img/colony.png"
+    "data/img/colony.png",
+    "data/img/food.png",
+    "data/img/ant_food.png"
 };
 
 enum AntTypes {
-    ANT_EMPTY,
+    ANT_TYPE_EMPTY,
+    ANT_TYPE_FOOD,
     ANT_TYPES_COUNT
 };
+
+float feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
 
 class SDL_App {
     private:
@@ -37,8 +44,8 @@ class SDL_App {
         Texture *textures[TEXTURE_COUNT];
         vector<Object *> ants;
         Object *colony;
+        Object *food;
         
-        float feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
         SDL_Texture* feromoneTexture;
 
         bool cursorDeflect;
@@ -130,7 +137,8 @@ bool SDL_App::loadMedia() {
 void SDL_App::initObjects() {
     colony = new Object(textures[TEXTURE_COLONY], 0);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
-
+    food = new Object(textures[TEXTURE_FOOD], 0);
+    food->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
     feromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
     
     Uint8* pixels;
@@ -144,7 +152,7 @@ void SDL_App::initObjects() {
 
     ants.resize(NUMBER_OF_ANTS);
     for (auto& ant : ants) {
-        ant = new Object(textures[TEXTURE_ANT], ANT_EMPTY);
+        ant = new Object(textures[TEXTURE_ANT], ANT_TYPE_EMPTY);
         ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
     }
 }
@@ -159,6 +167,7 @@ void SDL_App::destroy() {
     feromoneTexture = NULL;
 
     delete colony;
+    delete food;
     for (auto& ant : ants) {
         delete ant;
     }
@@ -179,10 +188,12 @@ void SDL_App::renderFeromones() {
 
     for (int i = 0; i < SCREEN_WIDTH; i++) {
         for (int j = 0; j < SCREEN_HEIGHT; j++) {
-            if (feromones[ANT_EMPTY][i][j] > 0) {
-                int intensity = (int)(255*feromones[ANT_EMPTY][i][j]);
-                pixels[4*i + pitch*j + 1] = 255 - intensity;
-                pixels[4*i + pitch*j + 2] = 255 - intensity;
+            if (feromones[ANT_TYPE_EMPTY][i][j] > 0 or feromones[ANT_TYPE_FOOD][i][j] > 0) {
+                int intensityEmpty = (int)(255*feromones[ANT_TYPE_EMPTY][i][j]);
+                int intensityFood = (int)(255*feromones[ANT_TYPE_FOOD][i][j]);
+                pixels[4*i + pitch*j + 0] = 255 - intensityFood;
+                pixels[4*i + pitch*j + 1] = 255 - intensityEmpty;
+                pixels[4*i + pitch*j + 2] = max(255 - intensityEmpty - intensityFood, 0);
             }
         }
     }
@@ -198,6 +209,7 @@ void SDL_App::renderAnts() {
 
 void SDL_App::render() {
     renderFeromones();
+    food->render();
     renderAnts();
     colony->render();
     SDL_RenderPresent(renderer);
@@ -235,11 +247,13 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     
     float diffA = 0;
     float total = 0;
+    
     const int area2 = area*area;
+    const int followType = ant->type == ANT_TYPE_EMPTY ? ANT_TYPE_FOOD : ANT_TYPE_EMPTY;
     
     for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
         for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
-            if (feromones[ant->type][i][j] > 0) {
+            if (feromones[followType][i][j] > 0) {
                 float dx = i - ant->pos.x;            
                 float dy = j - ant->pos.y;
 
@@ -254,8 +268,8 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
                         }
 
                         if (abs(dA) < maxA) {
-                            diffA += dA*feromones[ant->type][i][j];
-                            total += feromones[ant->type][i][j];
+                            diffA += dA*feromones[followType][i][j];
+                            total += feromones[followType][i][j];
                         }
                     }
                 }
@@ -311,6 +325,22 @@ void SDL_App::handleAnts() {
             normalizeAngle(ants[i]->a);
             ants[i]->move(STEP_SIZE);
             wallCollision(ants[i]); // ensures ants are inside screen area
+
+            switch (ants[i]->type) {
+                case ANT_TYPE_EMPTY:
+                    if (inRange(ants[i], food, 25)) {
+                        ants[i]->type = ANT_TYPE_FOOD;
+                        ants[i]->setTexture(textures[TEXTURE_ANT_FOOD]);
+                    }
+                    break;
+                
+                case ANT_TYPE_FOOD:
+                    if (inRange(ants[i], colony, 25)) {
+                        ants[i]->type = ANT_TYPE_EMPTY;
+                        ants[i]->setTexture(textures[TEXTURE_ANT]);
+                    }
+                    break;
+            };
         }
     }
 
