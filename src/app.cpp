@@ -320,7 +320,7 @@ void SDL_App::handleAnts() {
                 deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
             }
 
-            followFeromones(ants[i], FEROMONES_AREA, FEROMONES_ANGLE);
+            followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE);
             ants[i]->randomTurn(MAX_RANDOM_TURN);
             normalizeAngle(ants[i]->a);
             ants[i]->move(STEP_SIZE);
@@ -331,6 +331,8 @@ void SDL_App::handleAnts() {
                     if (inRange(ants[i], food, 25)) {
                         ants[i]->type = ANT_TYPE_FOOD;
                         ants[i]->setTexture(textures[TEXTURE_ANT_FOOD]);
+                        ants[i]->a += 180;
+                        normalizeAngle(ants[i]->a);
                     }
                     break;
                 
@@ -338,6 +340,8 @@ void SDL_App::handleAnts() {
                     if (inRange(ants[i], colony, 25)) {
                         ants[i]->type = ANT_TYPE_EMPTY;
                         ants[i]->setTexture(textures[TEXTURE_ANT]);
+                        ants[i]->a += 180;
+                        normalizeAngle(ants[i]->a);
                     }
                     break;
             };

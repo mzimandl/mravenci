@@ -21,5 +21,5 @@ const int NUMBER_OF_ANTS = 1000;
 const int MAX_RANDOM_TURN = 30;
 const float FEROMONE_PRODUCTION = 0.3;
 const float FEROMONE_DECAY = 0.001;
-const int FEROMONES_AREA = 15;
+const int FEROMONES_DISTANCE = 15;
 const int FEROMONES_ANGLE = 25;
