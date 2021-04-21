@@ -12,9 +12,8 @@ class Object {
     public:
         SDL_FPoint pos;
         float v, a;
-        int type;
 
-        Object(Texture* t, int g);
+        Object(Texture* t);
 
         void move(float dt);
         void randomTurn(float maxA);

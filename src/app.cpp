@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "math.h"
 #include "classes/cObject.h"
+#include "classes/cAnt.h"
 #include "classes/cTexture.h"
 
 using namespace std;
@@ -35,7 +36,7 @@ class SDL_App {
         SDL_Renderer *renderer = NULL;
 
         Texture *textures[TEXTURE_COUNT];
-        vector<Object *> ants;
+        vector<Ant *> ants;
         Object *colony;
         
         float feromones[ANT_TYPES_COUNT][SCREEN_WIDTH][SCREEN_HEIGHT];
@@ -47,12 +48,12 @@ class SDL_App {
         void renderAnts();
         void renderFeromones();
 
-        void deflectAnt(Object* ant, float x, float y, int dangerDist, int criticalDist);
-        void followFeromones(Object* ant, int area, int maxA);
-        void followFeromonesAverage(Object* ant, int area, int maxA);
-        void produceFeromones(Object* ant);
+        void deflectAnt(Ant* ant, float x, float y, int dangerDist, int criticalDist);
+        void followFeromones(Ant* ant, int area, int maxA);
+        void followFeromonesAverage(Ant* ant, int area, int maxA);
+        void produceFeromones(Ant* ant);
         void decayFeromones();
-        void wallCollision(Object* ant);
+        void wallCollision(Ant* ant);
 
         void destroy();
 
@@ -126,7 +127,7 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    colony = new Object(textures[TEXTURE_COLONY], 0);
+    colony = new Object(textures[TEXTURE_COLONY]);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
 
     feromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -142,8 +143,9 @@ void SDL_App::initObjects() {
 
     ants.resize(NUMBER_OF_ANTS);
     for (auto& ant : ants) {
-        ant = new Object(textures[TEXTURE_ANT], ANT_EMPTY);
+        ant = new Ant(textures[TEXTURE_ANT]);
         ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
+        ant->modify(true, ANT_EMPTY, ANT_EMPTY);
     }
 }
 
@@ -189,9 +191,7 @@ void SDL_App::renderFeromones() {
 }
 
 void SDL_App::renderAnts() {
-    for (auto& ant : ants) {
-        ant->render(ANT_SCALE_RENDER);
-    }
+    for (auto& ant : ants) if (ant->alive) ant->render(ANT_SCALE_RENDER);
 }
 
 void SDL_App::render() {
@@ -201,7 +201,7 @@ void SDL_App::render() {
     SDL_RenderPresent(renderer);
 }
 
-void SDL_App::deflectAnt(Object* ant, float x, float y, int dangerDist, int criticalDist) {
+void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int criticalDist) {
     float dx = x - ant->pos.x;
     float dy = y - ant->pos.y;
     if (abs(dx) < dangerDist and abs(dy) < dangerDist) {        
@@ -227,7 +227,7 @@ void SDL_App::deflectAnt(Object* ant, float x, float y, int dangerDist, int crit
     }
 }
 
-void SDL_App::followFeromones(Object* ant, int area, int maxA) {
+void SDL_App::followFeromones(Ant* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
     
@@ -237,7 +237,7 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     
     for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
         for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
-            if (feromones[ant->type][i][j] > 0) {
+            if (feromones[ant->follow][i][j] > 0) {
                 float dx = i - ant->pos.x;            
                 float dy = j - ant->pos.y;
 
@@ -270,7 +270,7 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     }
 }
 
-void SDL_App::followFeromonesAverage(Object* ant, int area, int maxA) {
+void SDL_App::followFeromonesAverage(Ant* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
     
@@ -281,7 +281,7 @@ void SDL_App::followFeromonesAverage(Object* ant, int area, int maxA) {
     
     for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
         for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
-            if (feromones[ant->type][i][j] > 0) {
+            if (feromones[ant->follow][i][j] > 0) {
                 float dx = i - ant->pos.x;            
                 float dy = j - ant->pos.y;
 
@@ -296,8 +296,8 @@ void SDL_App::followFeromonesAverage(Object* ant, int area, int maxA) {
                         }
 
                         if (abs(dA) < maxA) {
-                            diffA += dA*feromones[ant->type][i][j];
-                            total += feromones[ant->type][i][j];
+                            diffA += dA*feromones[ant->follow][i][j];
+                            total += feromones[ant->follow][i][j];
                         }
                     }
                 }
@@ -321,7 +321,7 @@ void SDL_App::decayFeromones() {
     }
 }
 
-void SDL_App::produceFeromones(Object* ant) {
+void SDL_App::produceFeromones(Ant* ant) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
     if (x >= 0 and x < SCREEN_WIDTH and y >= 0 and y < SCREEN_HEIGHT) {
@@ -342,26 +342,26 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage) {
     {
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
-            if (enableMouse) {
-                deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
+            if (ants[i]->alive) {
+                if (enableMouse) {
+                    deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
+                }
+
+                if (followAverage) { followFeromonesAverage(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+                else { followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+
+                ants[i]->randomTurn(MAX_RANDOM_TURN);
+                normalizeAngle(ants[i]->a);
+                ants[i]->move(STEP_SIZE);
+                wallCollision(ants[i]); // ensures ants are inside screen area
             }
-
-            if (followAverage) { followFeromonesAverage(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
-            else { followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
-
-            ants[i]->randomTurn(MAX_RANDOM_TURN);
-            normalizeAngle(ants[i]->a);
-            ants[i]->move(STEP_SIZE);
-            wallCollision(ants[i]); // ensures ants are inside screen area
         }
     }
 
-    for (auto& ant : ants) {
-        produceFeromones(ant);
-    }
+    for (auto& ant : ants) if (ant->alive) produceFeromones(ant);
 }
 
-void SDL_App::wallCollision(Object* ant) {
+void SDL_App::wallCollision(Ant* ant) {
     if (ant->pos.x < 0 or ant->pos.x >= SCREEN_WIDTH) {
         ant->pos.x = ant->pos.x < 0 ? 0 : SCREEN_WIDTH-1;
         ant->a = 180 - ant->a;

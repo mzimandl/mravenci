@@ -20,9 +20,8 @@ bool inRange(Object* obj1, Object* obj2, int d) {
     return false;
 }
 
-Object::Object(Texture* t, int g = 0) {
+Object::Object(Texture* t) {
     texture = t;
-    type = g;
 }
 
 void Object::move(float dt) {

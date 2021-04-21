@@ -1,5 +1,11 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = src/main.cpp src/math.cpp src/classes/cTimer.cpp src/classes/cTexture.cpp src/classes/cObject.cpp
+OBJS = \
+src/main.cpp\
+src/math.cpp\
+src/classes/cTimer.cpp\
+src/classes/cTexture.cpp\
+src/classes/cObject.cpp\
+src/classes/cAnt.cpp
 
 #CC specifies which compiler we're using
 CC = g++ -std=c++11
