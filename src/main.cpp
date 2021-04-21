@@ -10,6 +10,7 @@ struct Args {
     bool measurePerformance;
     bool enableMouse;
     bool pause;
+    bool followAverage;
 };
 
 int main(int argc, char *argv[]) {
@@ -17,10 +18,11 @@ int main(int argc, char *argv[]) {
     for (int i=0; i<argc; i++) {
         if (strcmp(argv[i], "--measure-performance") == 0) { args.measurePerformance = true; }
         if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
+        if (strcmp(argv[i], "--follow-average") == 0) { args.followAverage = true; }
         if (strcmp(argv[i], "--pause") == 0) { args.pause = true; }
     }
 
-    SDL_App app(args.enableMouse);
+    SDL_App app;
 
     if(!app.initSDL()) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialization failed");
@@ -82,7 +84,7 @@ int main(int argc, char *argv[]) {
 
         if (!args.pause) {
             for (int i=0; i<STEPS_PER_FRAME; i++) {
-                app.handleAnts();
+                app.handleAnts(args.enableMouse, args.followAverage);
             }
         }
 

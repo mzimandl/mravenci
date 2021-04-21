@@ -49,6 +49,7 @@ class SDL_App {
 
         void deflectAnt(Object* ant, float x, float y, int dangerDist, int criticalDist);
         void followFeromones(Object* ant, int area, int maxA);
+        void followFeromonesAverage(Object* ant, int area, int maxA);
         void produceFeromones(Object* ant);
         void decayFeromones();
         void wallCollision(Object* ant);
@@ -56,17 +57,17 @@ class SDL_App {
         void destroy();
 
     public:
-        SDL_App(bool enableMouse);
+        SDL_App();
         ~SDL_App();
 
         bool initSDL();
         bool loadMedia();
         void initObjects();
-        void handleAnts();
+        void handleAnts(bool enableMouse, bool followAverage);
         void render();
 };
 
-SDL_App::SDL_App(bool enableMouse) {
+SDL_App::SDL_App() {
     // class member array has to be initilized manually
     for (auto& f_type: feromones) {
         for (auto& f_col : f_type) {
@@ -75,9 +76,6 @@ SDL_App::SDL_App(bool enableMouse) {
             }
         }
     }
-
-    // enable cursor interaction
-    cursorDeflect = enableMouse;
 }
 
 SDL_App::~SDL_App() {
@@ -233,9 +231,53 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
     
+    const int area2 = area*area;
+    const float arc = 2*(float)maxA/3;
+    int count1 = 0, count2 = 0, count3 = 0;
+    
+    for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
+        for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
+            if (feromones[ant->type][i][j] > 0) {
+                float dx = i - ant->pos.x;            
+                float dy = j - ant->pos.y;
+
+                if (dx != 0 or dy != 0) {
+                    float dist2 = dx*dx + dy*dy;
+                    if (dist2 < area2) {
+                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - ant->a;
+                        if (dA > 180) {
+                            dA -= 360;
+                        } else if (dA < -180) {
+                            dA += 360;
+                        }
+
+                        if (abs(dA) < maxA) {
+                            if (dA < -arc/2) { count1++; }
+                            else if (dA > arc/2) { count3++; }
+                            else { count2++; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (count1 or count2 or count3) {
+        if (count1 > count2 and count1 > count3) { ant->a -= FEROMONES_STRENGTH*arc; }
+        else if (count3 > count1 and count3 > count2) { ant->a += FEROMONES_STRENGTH*arc; }
+        else if (count1 == count2 < count3) { ant->a -= FEROMONES_STRENGTH*arc/2; }
+        else if (count1 < count2 == count3) { ant->a += FEROMONES_STRENGTH*arc/2; }
+    }
+}
+
+void SDL_App::followFeromonesAverage(Object* ant, int area, int maxA) {
+    int x = (int)round(ant->pos.x);
+    int y = (int)round(ant->pos.y);
+    
+    const int area2 = area*area;
+
     float diffA = 0;
     float total = 0;
-    const int area2 = area*area;
     
     for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
         for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
@@ -263,9 +305,7 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
         }
     }
 
-    if (total > 0) {
-        ant->a += diffA / total;
-    }
+    if (total > 0) { ant->a += FEROMONES_STRENGTH * diffA / total; }
 }
 
 void SDL_App::decayFeromones() {
@@ -290,7 +330,7 @@ void SDL_App::produceFeromones(Object* ant) {
     }
 }
 
-void SDL_App::handleAnts() {
+void SDL_App::handleAnts(bool enableMouse, bool followAverage) {
     if (cursorDeflect) {
         SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
     }
@@ -302,11 +342,13 @@ void SDL_App::handleAnts() {
     {
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
-            if (cursorDeflect) {
+            if (enableMouse) {
                 deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
             }
 
-            followFeromones(ants[i], FEROMONES_AREA, FEROMONES_ANGLE);
+            if (followAverage) { followFeromonesAverage(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+            else { followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+
             ants[i]->randomTurn(MAX_RANDOM_TURN);
             normalizeAngle(ants[i]->a);
             ants[i]->move(STEP_SIZE);
