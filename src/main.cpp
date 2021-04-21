@@ -20,6 +20,16 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
         if (strcmp(argv[i], "--follow-average") == 0) { args.followAverage = true; }
         if (strcmp(argv[i], "--pause") == 0) { args.pause = true; }
+        if (strcmp(argv[i], "--help") == 0) {
+            cout << "Available flags:" << endl;
+            cout << "   --measure-performance" << endl;
+            cout << "   --enable-mouse" << endl;
+            cout << "   --follow-average" << endl;
+            cout << "   --pause" << endl;
+            cout << "   --help" << endl;
+
+            return 0;
+        }
     }
 
     SDL_App app;
