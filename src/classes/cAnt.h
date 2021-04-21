@@ -1,3 +1,4 @@
+#pragma once
 #include "cObject.h"
 
 
@@ -11,4 +12,5 @@ class Ant: public Object {
         using Object::Object;
 
         void modify(bool isAlive, int antType, int followType);
+        void randomTurn(float maxA);
 };

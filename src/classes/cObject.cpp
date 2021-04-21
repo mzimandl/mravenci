@@ -29,10 +29,6 @@ void Object::move(float dt) {
     pos.y += v*sin(a*DEG_TO_RAD)*dt;
 }
 
-void Object::randomTurn(float maxA) {
-    a += (static_cast<float>(rand())/static_cast<float>(RAND_MAX)) * maxA - maxA/2;
-}
-
 void Object::setValues(float ix, float iy, float iv, float ia) {
     pos.x = ix;
     pos.y = iy;

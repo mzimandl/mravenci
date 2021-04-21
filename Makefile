@@ -5,7 +5,8 @@ src/math.cpp\
 src/classes/cTimer.cpp\
 src/classes/cTexture.cpp\
 src/classes/cObject.cpp\
-src/classes/cAnt.cpp
+src/classes/cAnt.cpp\
+src/classes/cColony.cpp
 
 #CC specifies which compiler we're using
 CC = g++ -std=c++11

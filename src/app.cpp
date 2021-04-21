@@ -6,9 +6,10 @@
 
 #include "settings.h"
 #include "math.h"
+#include "classes/cTexture.h"
 #include "classes/cObject.h"
 #include "classes/cAnt.h"
-#include "classes/cTexture.h"
+#include "classes/cColony.h"
 
 using namespace std;
 
@@ -36,8 +37,7 @@ class SDL_App {
         SDL_Renderer *renderer = NULL;
 
         Texture *textures[TEXTURE_COUNT];
-        vector<Ant *> ants;
-        Object *colony;
+        Colony *colony;
         
         float *feromones[ANT_TYPES_COUNT];
         SDL_Texture* feromoneTexture;
@@ -122,9 +122,6 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    colony = new Object(textures[TEXTURE_COLONY]);
-    colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
-
     feromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
     
     Uint8* pixels;
@@ -136,8 +133,9 @@ void SDL_App::initObjects() {
     }
     SDL_UnlockTexture(feromoneTexture);
 
-    ants.resize(NUMBER_OF_ANTS);
-    for (auto& ant : ants) {
+    colony = new Colony(textures[TEXTURE_COLONY], NUMBER_OF_ANTS);
+    colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
+    for (auto& ant : colony->ants) {
         ant = new Ant(textures[TEXTURE_ANT]);
         ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
         ant->modify(true, ANT_EMPTY, ANT_EMPTY);
@@ -154,9 +152,6 @@ void SDL_App::destroy() {
     feromoneTexture = NULL;
 
     delete colony;
-    for (auto& ant : ants) {
-        delete ant;
-    }
 
     for (auto& texture : textures) {
         delete texture;
@@ -189,13 +184,9 @@ void SDL_App::renderFeromones() {
     SDL_RenderCopy(renderer, feromoneTexture, NULL, NULL);
 }
 
-void SDL_App::renderAnts() {
-    for (auto& ant : ants) if (ant->alive) ant->render(ANT_SCALE_RENDER);
-}
-
 void SDL_App::render() {
     renderFeromones();
-    renderAnts();
+    colony->renderAnts(ANT_SCALE_RENDER);
     colony->render();
     SDL_RenderPresent(renderer);
 }
@@ -339,6 +330,7 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage) {
     decayFeromones();
     
     int i;
+    auto& ants = colony->ants;
     #pragma omp parallel default(shared) private(i)
     {
         #pragma omp for schedule(dynamic) nowait
