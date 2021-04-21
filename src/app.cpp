@@ -247,6 +247,11 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
     
     float diffA = 0;
     float total = 0;
+
+    //int count1 = 0;
+    //int count2 = 0;
+    //int count3 = 0;
+    //const float arc = (float)2*maxA/3;
     
     const int area2 = area*area;
     const int followType = ant->type == ANT_TYPE_EMPTY ? ANT_TYPE_FOOD : ANT_TYPE_EMPTY;
@@ -268,8 +273,13 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
                         }
 
                         if (abs(dA) < maxA) {
+                            //if (dA < -arc/2) { count1++; }
+                            //else if ( dA > arc/2) { count3++; }
+                            //else { count2 ++; }
+                            
                             diffA += dA*feromones[followType][i][j];
                             total += feromones[followType][i][j];
+                            
                         }
                     }
                 }
@@ -277,8 +287,10 @@ void SDL_App::followFeromones(Object* ant, int area, int maxA) {
         }
     }
 
-    if (total > 0) {
+    if (total > 1) {
         ant->a += diffA / total;
+        //if (count1 > count2 and count1 > count3) { ant->a -= FEROMONES_STRENGTH * arc; }
+        //else if (count3 > count1 and count3 > count2) { ant->a += FEROMONES_STRENGTH * arc; }
     }
 }
 

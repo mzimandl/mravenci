@@ -23,3 +23,4 @@ const float FEROMONE_PRODUCTION = 0.3;
 const float FEROMONE_DECAY = 0.001;
 const int FEROMONES_DISTANCE = 15;
 const int FEROMONES_ANGLE = 25;
+const float FEROMONES_STRENGTH = 1;
