@@ -26,24 +26,17 @@ const string TEXTURE_PATHS[TEXTURE_COUNT] = {
     "data/img/colony.png"
 };
 
-enum AntTypes {
-    ANT_EMPTY,
-    ANT_TYPES_COUNT
-};
-
 class SDL_App {
     private:
         SDL_Window *window = NULL;
         SDL_Renderer *renderer = NULL;
+        SDL_Point cursorPos;
 
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
         
         float *feromones[ANT_TYPES_COUNT];
         SDL_Texture* feromoneTexture;
-
-        bool cursorDeflect;
-        SDL_Point cursorPos;
 
         void renderAnts();
         void renderFeromones();
@@ -69,13 +62,24 @@ class SDL_App {
 };
 
 SDL_App::SDL_App() {
-    for (auto& f : feromones) {
-        f = new float[SCREEN_WIDTH*SCREEN_HEIGHT];
-    }
+    for (auto& f : feromones) { f = new float[SCREEN_WIDTH*SCREEN_HEIGHT]; }
 }
 
 SDL_App::~SDL_App() {
-    destroy();
+    SDL_DestroyRenderer(renderer);
+    renderer = NULL;
+    SDL_DestroyWindow(window);
+    window = NULL;
+
+    SDL_DestroyTexture(feromoneTexture);
+    feromoneTexture = NULL;
+
+    delete colony;
+    for (auto& texture : textures) { delete texture; }
+    for (auto& f : feromones) { delete [] f; }
+
+    SDL_Quit();
+    IMG_Quit();
 }
 
 bool SDL_App::initSDL() {
@@ -138,31 +142,8 @@ void SDL_App::initObjects() {
     for (auto& ant : colony->ants) {
         ant = new Ant(textures[TEXTURE_ANT]);
         ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
-        ant->modify(true, ANT_EMPTY, ANT_EMPTY);
+        ant->modify(true, ANT_TYPE_EMPTY, ANT_TYPE_EMPTY);
     }
-}
-
-void SDL_App::destroy() {
-    SDL_DestroyRenderer(renderer);
-    renderer = NULL;
-    SDL_DestroyWindow(window);
-    window = NULL;
-
-    SDL_DestroyTexture(feromoneTexture);
-    feromoneTexture = NULL;
-
-    delete colony;
-
-    for (auto& texture : textures) {
-        delete texture;
-    }
-
-    for (auto& f : feromones) {
-        delete [] f;
-    }
-
-    SDL_Quit();
-    IMG_Quit();
 }
 
 void SDL_App::renderFeromones() {
@@ -173,8 +154,8 @@ void SDL_App::renderFeromones() {
 
     for (int y = 0; y < SCREEN_HEIGHT; y++) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
-            if (feromones[ANT_EMPTY][x + y*SCREEN_WIDTH] > 0) {
-                int intensity = (int)(255*feromones[ANT_EMPTY][x + y*SCREEN_WIDTH]);
+            if (feromones[ANT_TYPE_EMPTY][x + y*SCREEN_WIDTH] > 0) {
+                int intensity = (int)(255*feromones[ANT_TYPE_EMPTY][x + y*SCREEN_WIDTH]);
                 pixels[4*x + pitch*y + 1] = 255 - intensity;
                 pixels[4*x + pitch*y + 2] = 255 - intensity;
             }
@@ -323,7 +304,7 @@ void SDL_App::produceFeromones(Ant* ant) {
 }
 
 void SDL_App::handleAnts(bool enableMouse, bool followAverage) {
-    if (cursorDeflect) {
+    if (enableMouse) {
         SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
     }
 
