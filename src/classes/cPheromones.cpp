@@ -34,12 +34,13 @@ Pheromones::~Pheromones() {
 
 void Pheromones::render(Uint8 type) {
     Uint8* pixels; int pitch;
+    float* p = pheromones[type];
 
     SDL_LockTexture(pheromoneTexture, NULL, (void**)&pixels, &pitch);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            if (pheromones[type][x + y*width] > 0) {
-                int intensity = (int)(255*pheromones[type][x + y*width]);
+            if (p[x + y*width] > 0) {
+                int intensity = (int)(255*p[x + y*width]);
                 pixels[4*x + pitch*y + 1] = 255 - intensity;
                 pixels[4*x + pitch*y + 2] = 255 - intensity;
             }
@@ -57,9 +58,11 @@ void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength) {
     const float arc = 2*(float)maxA/3;
     int count1 = 0, count2 = 0, count3 = 0;
 
+    float* p = pheromones[ant->follow];
+
     for (int j = std::max(0, y-area); j < std::min(height, y+area+1); j++) {
         for (int i = std::max(0, x-area); i < std::min(width, x+area+1); i++) {
-            if (pheromones[ant->follow][i + j*width] > 0) {
+            if (p[i + j*width] > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
@@ -99,10 +102,12 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
     float diffA = 0;
     float total = 0;
 
+    float* p = pheromones[ant->follow];
+
     for (int j = std::max(0, y-area); j < std::min(height, y+area+1); j++) {
         for (int i = std::max(0, x-area); i < std::min(width, x+area+1); i++) {
-            const int index = i + j*width;
-            if (pheromones[ant->follow][index] > 0) {
+            const int intensity = p[i + j*width];
+            if (intensity > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
@@ -115,8 +120,8 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
                         else if (dA < -180) dA += 360;
 
                         if (abs(dA) < maxA) {
-                            diffA += dA*pheromones[ant->follow][index];
-                            total += pheromones[ant->follow][index];
+                            diffA += intensity;
+                            total += intensity;
                         }
                     }
                 }
@@ -128,24 +133,20 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
 }
 
 void Pheromones::decay(float rate) {
-    for (int t = 0; t < levels; t++) {
+    for (auto& type : pheromones)
         for (int y = 0; y < width*height; y+=width) {
             for (int x = 0; x < width; x++) {
-                if (pheromones[t][x + y] > 0) {
-                    pheromones[t][x + y] -= rate;
-                    if (pheromones[t][x + y] < 0) pheromones[t][x + y] = 0;
-                }
+                float& p = type[x + y];
+                if (p > 0) p = std::max(p - rate, (float)0);
             }
         }
-    }
 }
 
 void Pheromones::produce(Ant* ant, float rate) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
     if (x >= 0 and x < width and y >= 0 and y < height) {
-        const int index = x + y*width;
-        pheromones[ant->type][index] += rate;
-        if (pheromones[ant->type][index] > 1) pheromones[ant->type][index] = 1;
+        float& p = pheromones[ant->type][x + y*width];
+        p = std::min(p + rate, (float)1);
     }
 }
