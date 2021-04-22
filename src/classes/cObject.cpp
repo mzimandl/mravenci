@@ -10,13 +10,12 @@
 
 
 bool inRange(Object* obj1, Object* obj2, int d) {
-    int dx = obj1->pos.x - obj2->pos.x; 
+    int dx = obj1->pos.x - obj2->pos.x;
     int dy = obj1->pos.y - obj2->pos.y;
-    if (abs(dx) < d and abs(dy) < d) {
-        if (dx*dx + dy*dy < d*d) {
-            return true;
-        }
-    }
+
+    if (abs(dx) < d and abs(dy) < d) if (dx*dx + dy*dy < d*d)
+        return true;
+
     return false;
 }
 

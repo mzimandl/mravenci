@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         perfTimer = new Timer();
         perfTimer->start();
     }
-    
+
     Timer capTimer;
 
     bool quit = false;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
                         case SDLK_ESCAPE:
                             quit = true;
                             break;
-                        
+
                         case SDLK_SPACE:
                             args.pause = !args.pause;
                             break;
@@ -102,14 +102,13 @@ int main(int argc, char *argv[]) {
                     break;
             }
         }
-        
-        if (perfTimer) { perfTimer->start(); }
 
-        if (!args.pause) {
+        if (perfTimer) perfTimer->start();
+
+        if (!args.pause)
             for (int i=0; i<STEPS_PER_FRAME; i++) {
                 app.handleAnts(args.enableMouse, args.followAverage, follow);
             }
-        }
 
         if (perfTimer) {
             calculationTime += perfTimer->getTicks();
@@ -124,14 +123,11 @@ int main(int argc, char *argv[]) {
         }
 
         int frameTicks = capTimer.getTicks();
-        if (frameTicks < SCREEN_TICKS_PER_FRAME) {
+        if (frameTicks < SCREEN_TICKS_PER_FRAME)
             SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
-        }
     }
 
-    if (perfTimer) {
-        delete perfTimer;
-    }
+    if (perfTimer) delete perfTimer;
 
     return 0;
 }

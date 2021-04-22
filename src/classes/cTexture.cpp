@@ -7,28 +7,24 @@
 
 
 
-SDL_Texture* loadTexture(std::string path, SDL_Renderer *renderer)
-{
+SDL_Texture* loadTexture(std::string path, SDL_Renderer *renderer) {
     SDL_Texture* newTexture = NULL;
 
     //Load image at specified path
     SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if( loadedSurface == NULL )
-    {
+    if( loadedSurface == NULL ) {
         std::cout << "Unable to load image: " << path << std::endl;
         std::cout << IMG_GetError() << std::endl;
-    }
-    else
-    {
+
+    } else {
         newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if( newTexture == NULL )
-        {
+        if( newTexture == NULL ) {
             std::cout << "Unable to create texture from: " << path << std::endl;
             std::cout << SDL_GetError() << std::endl;
         }
         SDL_FreeSurface(loadedSurface);
     }
-    
+
     return newTexture;
 }
 

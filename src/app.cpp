@@ -62,7 +62,7 @@ class SDL_App {
 };
 
 SDL_App::SDL_App() {
-    for (auto& f : pheromones) { f = new float[SCREEN_WIDTH*SCREEN_HEIGHT]; }
+    for (auto& f : pheromones) f = new float[SCREEN_WIDTH*SCREEN_HEIGHT];
 }
 
 SDL_App::~SDL_App() {
@@ -75,8 +75,8 @@ SDL_App::~SDL_App() {
     pheromoneTexture = NULL;
 
     delete colony;
-    for (auto& texture : textures) { delete texture; }
-    for (auto& f : pheromones) { delete [] f; }
+    for (auto& texture : textures) delete texture;
+    for (auto& f : pheromones) delete[] f;
 
     SDL_Quit();
     IMG_Quit();
@@ -119,7 +119,7 @@ bool SDL_App::initSDL() {
 bool SDL_App::loadMedia() {
     for (int i = 0; i < TEXTURE_COUNT; i++) {
         textures[i] = new Texture(renderer, TEXTURE_PATHS[i]);
-        if (textures[i] == NULL) {return false;}
+        if (textures[i] == NULL) return false;
     }
 
     return true;
@@ -132,9 +132,7 @@ void SDL_App::initObjects() {
     int pitch;
 
     SDL_LockTexture(pheromoneTexture, NULL, (void**)&pixels, &pitch);
-    for (int i = 0; i < pitch*SCREEN_HEIGHT; i++) {
-        pixels[i] = 255;
-    }
+    for (int i = 0; i < pitch*SCREEN_HEIGHT; i++) { pixels[i] = 255; }
     SDL_UnlockTexture(pheromoneTexture);
 
     colony = new Colony(textures[TEXTURE_COLONY], NUMBER_OF_ANTS);
@@ -182,18 +180,12 @@ void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int critica
 
             // cursor position and ant velocity angle
             float dA = calculateAngleI(dx, dy, idist) - ant->a;
-            if (dA > 180) {
-                dA -= 360;
-            } else if (dA < -180) {
-                dA += 360;
-            }
+            if (dA > 180) dA -= 360;
+            else if (dA < -180) dA += 360;
 
             float diff = (180 - abs(dA))*min((float)1.0, criticalDist*idist);
-            if (dA > 0) {
-                ant->a -= diff;
-            } else if (dA < 0) {
-                ant->a += diff;
-            }
+            if (dA > 0) ant->a -= diff;
+            else if (dA < 0) ant->a += diff;
         }
     }
 }
@@ -216,16 +208,14 @@ void SDL_App::followPheromones(Ant* ant, int area, int maxA) {
                     float dist2 = dx*dx + dy*dy;
                     if (dist2 < area2) {
                         float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - ant->a;
-                        if (dA > 180) {
-                            dA -= 360;
-                        } else if (dA < -180) {
-                            dA += 360;
-                        }
+
+                        if (dA > 180) dA -= 360;
+                        else if (dA < -180) dA += 360;
 
                         if (abs(dA) < maxA) {
-                            if (dA < -arc/2) { count1++; }
-                            else if (dA > arc/2) { count3++; }
-                            else { count2++; }
+                            if (dA < -arc/2) count1++;
+                            else if (dA > arc/2) count3++;
+                            else count2++;
                         }
                     }
                 }
@@ -234,10 +224,10 @@ void SDL_App::followPheromones(Ant* ant, int area, int maxA) {
     }
 
     if (count1 or count2 or count3) {
-        if (count1 > count2 and count1 > count3) { ant->a -= PHEROMONES_STRENGTH*arc; }
-        else if (count3 > count1 and count3 > count2) { ant->a += PHEROMONES_STRENGTH*arc; }
-        else if (count1 == count2 < count3) { ant->a -= PHEROMONES_STRENGTH*arc/2; }
-        else if (count1 < count2 == count3) { ant->a += PHEROMONES_STRENGTH*arc/2; }
+        if (count1 > count2 and count1 > count3) ant->a -= PHEROMONES_STRENGTH*arc;
+        else if (count3 > count1 and count3 > count2) ant->a += PHEROMONES_STRENGTH*arc;
+        else if (count1 == count2 < count3) ant->a -= PHEROMONES_STRENGTH*arc/2;
+        else if (count1 < count2 == count3) ant->a += PHEROMONES_STRENGTH*arc/2;
     }
 }
 
@@ -261,11 +251,9 @@ void SDL_App::followPheromonesAverage(Ant* ant, int area, int maxA) {
                     float dist2 = dx*dx + dy*dy;
                     if (dist2 < area2) {
                         float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - ant->a;
-                        if (dA > 180) {
-                            dA -= 360;
-                        } else if (dA < -180) {
-                            dA += 360;
-                        }
+
+                        if (dA > 180) dA -= 360;
+                        else if (dA < -180) dA += 360;
 
                         if (abs(dA) < maxA) {
                             diffA += dA*pheromones[ant->follow][index];
@@ -277,7 +265,7 @@ void SDL_App::followPheromonesAverage(Ant* ant, int area, int maxA) {
         }
     }
 
-    if (total > 0) { ant->a += PHEROMONES_STRENGTH * diffA / total; }
+    if (total > 0) ant->a += PHEROMONES_STRENGTH * diffA / total;
 }
 
 void SDL_App::decayPheromones() {
@@ -286,7 +274,7 @@ void SDL_App::decayPheromones() {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
                 if (pheromones[t][x + y] > 0) {
                     pheromones[t][x + y] -= PHEROMONE_DECAY;
-                    if (pheromones[t][x + y] < 0) { pheromones[t][x + y] = 0; }
+                    if (pheromones[t][x + y] < 0) pheromones[t][x + y] = 0;
                 }
             }
         }
@@ -299,14 +287,12 @@ void SDL_App::producePheromones(Ant* ant) {
     if (x >= 0 and x < SCREEN_WIDTH and y >= 0 and y < SCREEN_HEIGHT) {
         const int index = x + y*SCREEN_WIDTH;
         pheromones[ant->type][index] += PHEROMONE_PRODUCTION;
-        if (pheromones[ant->type][index] > 1) { pheromones[ant->type][index] = 1; }
+        if (pheromones[ant->type][index] > 1) pheromones[ant->type][index] = 1;
     }
 }
 
 void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
-    if (enableMouse) {
-        SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
-    }
+    if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
 
     decayPheromones();
 
@@ -317,13 +303,12 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
             if (rand() % 100 < CHANCE_TO_MOVE and ants[i]->alive) {
-                if (enableMouse) {
+                if (enableMouse)
                     deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
-                }
 
                 if (follow) {
-                    if (followAverage) { followPheromonesAverage(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE); }
-                    else { followPheromones(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE); }
+                    if (followAverage) followPheromonesAverage(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE);
+                    else followPheromones(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE);
                 }
 
                 ants[i]->randomTurn(MAX_RANDOM_TURN);

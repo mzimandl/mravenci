@@ -9,7 +9,7 @@ Colony::Colony(Texture* t, int population) : Object(t) {
 
 Colony::~Colony() {
     setTexture(NULL);
-    for (auto& ant : ants) { delete ant; }
+    for (auto& ant : ants) delete ant;
 }
 
 void Colony::renderAnts(float scale = (float)1.0) {
