@@ -7,11 +7,6 @@
 
 
 
-enum AntTypes {
-    ANT_TYPE_EMPTY,
-    ANT_TYPES_COUNT
-};
-
 class Colony: public Object {
     public:
         Colony(Texture* t, int population);
