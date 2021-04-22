@@ -57,7 +57,7 @@ class SDL_App {
         bool initSDL();
         bool loadMedia();
         void initObjects();
-        void handleAnts(bool enableMouse, bool followAverage);
+        void handleAnts(bool enableMouse, bool followAverage, bool follow);
         void render();
 };
 
@@ -303,7 +303,7 @@ void SDL_App::produceFeromones(Ant* ant) {
     }
 }
 
-void SDL_App::handleAnts(bool enableMouse, bool followAverage) {
+void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
     if (enableMouse) {
         SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
     }
@@ -321,8 +321,10 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage) {
                     deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
                 }
 
-                if (followAverage) { followFeromonesAverage(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
-                else { followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+                if (follow) {
+                    if (followAverage) { followFeromonesAverage(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+                    else { followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+                }
 
                 ants[i]->randomTurn(MAX_RANDOM_TURN);
                 normalizeAngle(ants[i]->a);

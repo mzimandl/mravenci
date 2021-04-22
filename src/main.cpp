@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
     Timer capTimer;
 
     bool quit = false;
+    bool follow = true;
     SDL_Event e;
     while (!quit) {
         capTimer.start();
@@ -74,12 +75,24 @@ int main(int argc, char *argv[]) {
             switch (e.type) {
                 case SDL_KEYDOWN:
                     switch (e.key.keysym.sym) {
+                        case SDLK_RETURN:
+                            follow = false;
+                            break;
+
                         case SDLK_ESCAPE:
                             quit = true;
                             break;
                         
                         case SDLK_SPACE:
                             args.pause = !args.pause;
+                            break;
+                    }
+                    break;
+
+                case SDL_KEYUP:
+                    switch (e.key.keysym.sym) {
+                        case SDLK_RETURN:
+                            follow = true;
                             break;
                     }
                     break;
@@ -94,7 +107,7 @@ int main(int argc, char *argv[]) {
 
         if (!args.pause) {
             for (int i=0; i<STEPS_PER_FRAME; i++) {
-                app.handleAnts(args.enableMouse, args.followAverage);
+                app.handleAnts(args.enableMouse, args.followAverage, follow);
             }
         }
 
