@@ -106,7 +106,7 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
 
     for (int j = std::max(0, y-area); j < std::min(height, y+area+1); j++) {
         for (int i = std::max(0, x-area); i < std::min(width, x+area+1); i++) {
-            const int intensity = p[i + j*width];
+            const float intensity = p[i + j*width];
             if (intensity > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
@@ -120,7 +120,7 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
                         else if (dA < -180) dA += 360;
 
                         if (abs(dA) < maxA) {
-                            diffA += intensity;
+                            diffA += dA*intensity;
                             total += intensity;
                         }
                     }

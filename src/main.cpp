@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
 
     bool quit = false;
     bool follow = true;
+    int followCycles = 0;
     SDL_Event e;
     while (!quit) {
         capTimer.start();
@@ -112,8 +113,9 @@ int main(int argc, char *argv[]) {
         if (perfTimer) perfTimer->start();
 
         if (!args.pause)
-            for (int i=0; i<STEPS_PER_FRAME; i++) {
-                app.handleAnts(args.enableMouse, args.followAverage, follow);
+            for (int i=0; i<STEPS_PER_FRAME; i++) { 
+                app.handleAnts(args.enableMouse, args.followAverage, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0);
+                if (followCycles == PHEROMONES_FOLLOW_STEP) followCycles = 1; else followCycles++;
             }
 
         if (perfTimer) {
