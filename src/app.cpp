@@ -35,17 +35,17 @@ class SDL_App {
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
 
-        float *feromones[ANT_TYPES_COUNT];
-        SDL_Texture* feromoneTexture;
+        float *pheromones[ANT_TYPES_COUNT];
+        SDL_Texture* pheromoneTexture;
 
         void renderAnts();
-        void renderFeromones();
+        void renderPheromones();
 
         void deflectAnt(Ant* ant, float x, float y, int dangerDist, int criticalDist);
-        void followFeromones(Ant* ant, int area, int maxA);
-        void followFeromonesAverage(Ant* ant, int area, int maxA);
-        void produceFeromones(Ant* ant);
-        void decayFeromones();
+        void followPheromones(Ant* ant, int area, int maxA);
+        void followPheromonesAverage(Ant* ant, int area, int maxA);
+        void producePheromones(Ant* ant);
+        void decayPheromones();
         void wallCollision(Ant* ant);
 
         void destroy();
@@ -62,7 +62,7 @@ class SDL_App {
 };
 
 SDL_App::SDL_App() {
-    for (auto& f : feromones) { f = new float[SCREEN_WIDTH*SCREEN_HEIGHT]; }
+    for (auto& f : pheromones) { f = new float[SCREEN_WIDTH*SCREEN_HEIGHT]; }
 }
 
 SDL_App::~SDL_App() {
@@ -71,12 +71,12 @@ SDL_App::~SDL_App() {
     SDL_DestroyWindow(window);
     window = NULL;
 
-    SDL_DestroyTexture(feromoneTexture);
-    feromoneTexture = NULL;
+    SDL_DestroyTexture(pheromoneTexture);
+    pheromoneTexture = NULL;
 
     delete colony;
     for (auto& texture : textures) { delete texture; }
-    for (auto& f : feromones) { delete [] f; }
+    for (auto& f : pheromones) { delete [] f; }
 
     SDL_Quit();
     IMG_Quit();
@@ -126,16 +126,16 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    feromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    pheromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     Uint8* pixels;
     int pitch;
 
-    SDL_LockTexture(feromoneTexture, NULL, (void**)&pixels, &pitch);
+    SDL_LockTexture(pheromoneTexture, NULL, (void**)&pixels, &pitch);
     for (int i = 0; i < pitch*SCREEN_HEIGHT; i++) {
         pixels[i] = 255;
     }
-    SDL_UnlockTexture(feromoneTexture);
+    SDL_UnlockTexture(pheromoneTexture);
 
     colony = new Colony(textures[TEXTURE_COLONY], NUMBER_OF_ANTS);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
@@ -146,27 +146,27 @@ void SDL_App::initObjects() {
     }
 }
 
-void SDL_App::renderFeromones() {
+void SDL_App::renderPheromones() {
     Uint8* pixels;
     int pitch;
 
-    SDL_LockTexture(feromoneTexture, NULL, (void**)&pixels, &pitch);
+    SDL_LockTexture(pheromoneTexture, NULL, (void**)&pixels, &pitch);
 
     for (int y = 0; y < SCREEN_HEIGHT; y++) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
-            if (feromones[ANT_TYPE_EMPTY][x + y*SCREEN_WIDTH] > 0) {
-                int intensity = (int)(255*feromones[ANT_TYPE_EMPTY][x + y*SCREEN_WIDTH]);
+            if (pheromones[ANT_TYPE_EMPTY][x + y*SCREEN_WIDTH] > 0) {
+                int intensity = (int)(255*pheromones[ANT_TYPE_EMPTY][x + y*SCREEN_WIDTH]);
                 pixels[4*x + pitch*y + 1] = 255 - intensity;
                 pixels[4*x + pitch*y + 2] = 255 - intensity;
             }
         }
     }
-    SDL_UnlockTexture(feromoneTexture);
-    SDL_RenderCopy(renderer, feromoneTexture, NULL, NULL);
+    SDL_UnlockTexture(pheromoneTexture);
+    SDL_RenderCopy(renderer, pheromoneTexture, NULL, NULL);
 }
 
 void SDL_App::render() {
-    renderFeromones();
+    renderPheromones();
     colony->renderAnts(ANT_SCALE_RENDER);
     colony->render();
     SDL_RenderPresent(renderer);
@@ -198,7 +198,7 @@ void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int critica
     }
 }
 
-void SDL_App::followFeromones(Ant* ant, int area, int maxA) {
+void SDL_App::followPheromones(Ant* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
 
@@ -208,7 +208,7 @@ void SDL_App::followFeromones(Ant* ant, int area, int maxA) {
 
     for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
         for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
-            if (feromones[ant->follow][i + j*SCREEN_WIDTH] > 0) {
+            if (pheromones[ant->follow][i + j*SCREEN_WIDTH] > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
@@ -234,14 +234,14 @@ void SDL_App::followFeromones(Ant* ant, int area, int maxA) {
     }
 
     if (count1 or count2 or count3) {
-        if (count1 > count2 and count1 > count3) { ant->a -= FEROMONES_STRENGTH*arc; }
-        else if (count3 > count1 and count3 > count2) { ant->a += FEROMONES_STRENGTH*arc; }
-        else if (count1 == count2 < count3) { ant->a -= FEROMONES_STRENGTH*arc/2; }
-        else if (count1 < count2 == count3) { ant->a += FEROMONES_STRENGTH*arc/2; }
+        if (count1 > count2 and count1 > count3) { ant->a -= PHEROMONES_STRENGTH*arc; }
+        else if (count3 > count1 and count3 > count2) { ant->a += PHEROMONES_STRENGTH*arc; }
+        else if (count1 == count2 < count3) { ant->a -= PHEROMONES_STRENGTH*arc/2; }
+        else if (count1 < count2 == count3) { ant->a += PHEROMONES_STRENGTH*arc/2; }
     }
 }
 
-void SDL_App::followFeromonesAverage(Ant* ant, int area, int maxA) {
+void SDL_App::followPheromonesAverage(Ant* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
 
@@ -253,7 +253,7 @@ void SDL_App::followFeromonesAverage(Ant* ant, int area, int maxA) {
     for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
         for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
             const int index = i + j*SCREEN_WIDTH;
-            if (feromones[ant->follow][index] > 0) {
+            if (pheromones[ant->follow][index] > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
@@ -268,8 +268,8 @@ void SDL_App::followFeromonesAverage(Ant* ant, int area, int maxA) {
                         }
 
                         if (abs(dA) < maxA) {
-                            diffA += dA*feromones[ant->follow][index];
-                            total += feromones[ant->follow][index];
+                            diffA += dA*pheromones[ant->follow][index];
+                            total += pheromones[ant->follow][index];
                         }
                     }
                 }
@@ -277,29 +277,29 @@ void SDL_App::followFeromonesAverage(Ant* ant, int area, int maxA) {
         }
     }
 
-    if (total > 0) { ant->a += FEROMONES_STRENGTH * diffA / total; }
+    if (total > 0) { ant->a += PHEROMONES_STRENGTH * diffA / total; }
 }
 
-void SDL_App::decayFeromones() {
+void SDL_App::decayPheromones() {
     for (int t = 0; t < ANT_TYPES_COUNT; t++) {
         for (int y = 0; y < SCREEN_WIDTH*SCREEN_HEIGHT; y+=SCREEN_WIDTH) {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
-                if (feromones[t][x + y] > 0) {
-                    feromones[t][x + y] -= FEROMONE_DECAY;
-                    if (feromones[t][x + y] < 0) { feromones[t][x + y] = 0; }
+                if (pheromones[t][x + y] > 0) {
+                    pheromones[t][x + y] -= PHEROMONE_DECAY;
+                    if (pheromones[t][x + y] < 0) { pheromones[t][x + y] = 0; }
                 }
             }
         }
     }
 }
 
-void SDL_App::produceFeromones(Ant* ant) {
+void SDL_App::producePheromones(Ant* ant) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
     if (x >= 0 and x < SCREEN_WIDTH and y >= 0 and y < SCREEN_HEIGHT) {
         const int index = x + y*SCREEN_WIDTH;
-        feromones[ant->type][index] += FEROMONE_PRODUCTION;
-        if (feromones[ant->type][index] > 1) { feromones[ant->type][index] = 1; }
+        pheromones[ant->type][index] += PHEROMONE_PRODUCTION;
+        if (pheromones[ant->type][index] > 1) { pheromones[ant->type][index] = 1; }
     }
 }
 
@@ -308,7 +308,7 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
         SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
     }
 
-    decayFeromones();
+    decayPheromones();
 
     int i;
     auto& ants = colony->ants;
@@ -322,8 +322,8 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
                 }
 
                 if (follow) {
-                    if (followAverage) { followFeromonesAverage(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
-                    else { followFeromones(ants[i], FEROMONES_DISTANCE, FEROMONES_ANGLE); }
+                    if (followAverage) { followPheromonesAverage(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE); }
+                    else { followPheromones(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE); }
                 }
 
                 ants[i]->randomTurn(MAX_RANDOM_TURN);
@@ -334,7 +334,7 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
         }
     }
 
-    for (auto& ant : ants) if (ant->alive) produceFeromones(ant);
+    for (auto& ant : ants) if (ant->alive) producePheromones(ant);
 }
 
 void SDL_App::wallCollision(Ant* ant) {
