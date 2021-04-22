@@ -24,3 +24,4 @@ const float FEROMONE_DECAY = 0.001;
 const int FEROMONES_DISTANCE = 30;
 const int FEROMONES_ANGLE = 25;
 const float FEROMONES_STRENGTH = 0.5;
+const char CHANCE_TO_MOVE = 50;

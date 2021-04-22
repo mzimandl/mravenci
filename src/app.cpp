@@ -34,7 +34,7 @@ class SDL_App {
 
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
-        
+
         float *feromones[ANT_TYPES_COUNT];
         SDL_Texture* feromoneTexture;
 
@@ -127,7 +127,7 @@ bool SDL_App::loadMedia() {
 
 void SDL_App::initObjects() {
     feromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
-    
+
     Uint8* pixels;
     int pitch;
 
@@ -175,10 +175,10 @@ void SDL_App::render() {
 void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int criticalDist) {
     float dx = x - ant->pos.x;
     float dy = y - ant->pos.y;
-    if (abs(dx) < dangerDist and abs(dy) < dangerDist) {        
+    if (abs(dx) < dangerDist and abs(dy) < dangerDist) {
         float dist2 = dx*dx + dy*dy;
-        if (dist2 < dangerDist*dangerDist) {   
-            float idist = iqsqrt(dist2);     
+        if (dist2 < dangerDist*dangerDist) {
+            float idist = iqsqrt(dist2);
 
             // cursor position and ant velocity angle
             float dA = calculateAngleI(dx, dy, idist) - ant->a;
@@ -201,15 +201,15 @@ void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int critica
 void SDL_App::followFeromones(Ant* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
-    
+
     const int area2 = area*area;
     const float arc = 2*(float)maxA/3;
     int count1 = 0, count2 = 0, count3 = 0;
-    
+
     for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
         for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
             if (feromones[ant->follow][i + j*SCREEN_WIDTH] > 0) {
-                float dx = i - ant->pos.x;            
+                float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
                 if (dx != 0 or dy != 0) {
@@ -244,17 +244,17 @@ void SDL_App::followFeromones(Ant* ant, int area, int maxA) {
 void SDL_App::followFeromonesAverage(Ant* ant, int area, int maxA) {
     int x = (int)round(ant->pos.x);
     int y = (int)round(ant->pos.y);
-    
+
     const int area2 = area*area;
 
     float diffA = 0;
     float total = 0;
-    
+
     for (int j = max(0, y-area); j < min(SCREEN_HEIGHT, y+area+1); j++) {
         for (int i = max(0, x-area); i < min(SCREEN_WIDTH, x+area+1); i++) {
             const int index = i + j*SCREEN_WIDTH;
             if (feromones[ant->follow][index] > 0) {
-                float dx = i - ant->pos.x;            
+                float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
                 if (dx != 0 or dy != 0) {
@@ -309,14 +309,14 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
     }
 
     decayFeromones();
-    
+
     int i;
     auto& ants = colony->ants;
     #pragma omp parallel default(shared) private(i)
     {
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
-            if (ants[i]->alive) {
+            if (rand() % 100 < CHANCE_TO_MOVE and ants[i]->alive) {
                 if (enableMouse) {
                     deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
                 }
@@ -342,7 +342,7 @@ void SDL_App::wallCollision(Ant* ant) {
         ant->pos.x = ant->pos.x < 0 ? 0 : SCREEN_WIDTH-1;
         ant->a = 180 - ant->a;
     }
-    
+
     if (ant->pos.y < 0 or ant->pos.y >= SCREEN_HEIGHT) {
         ant->pos.y = ant->pos.y < 0 ? 0 : SCREEN_HEIGHT-1;
         ant->a = 360 - ant->a;
