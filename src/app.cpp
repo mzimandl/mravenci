@@ -134,26 +134,6 @@ void SDL_App::render() {
     SDL_RenderPresent(renderer);
 }
 
-void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int criticalDist) {
-    float dx = x - ant->pos.x;
-    float dy = y - ant->pos.y;
-    if (abs(dx) < dangerDist and abs(dy) < dangerDist) {
-        float dist2 = dx*dx + dy*dy;
-        if (dist2 < dangerDist*dangerDist) {
-            float idist = iqsqrt(dist2);
-
-            // cursor position and ant velocity angle
-            float dA = calculateAngleI(dx, dy, idist) - ant->a;
-            if (dA > 180) dA -= 360;
-            else if (dA < -180) dA += 360;
-
-            float diff = (180 - abs(dA))*std::min((float)1.0, criticalDist*idist);
-            if (dA > 0) ant->a -= diff;
-            else if (dA < 0) ant->a += diff;
-        }
-    }
-}
-
 void SDL_App::processData(bool enableMouse) {
     if (soundControll != NULL) soundControll->checkAudio();
     if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
@@ -165,38 +145,26 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
     pheromones->decay(PHEROMONE_DECAY_RATE);
 
     int i;
-    auto& ants = colony->ants;
     #pragma omp parallel default(shared) private(i)
     {
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
-            if (rand() % 100 < CHANCE_TO_MOVE and ants[i]->alive) {
-                if (enableMouse) deflectAnt(ants[i], (float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
+            auto& ant = colony->ants[i];
+            if (rand() % 100 < CHANCE_TO_MOVE and ant->alive) {
+                if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
 
                 if (follow) {
-                    if (followAverage) pheromones->followAverage(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
-                    else pheromones->follow(ants[i], PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
+                    if (followAverage) pheromones->followAverage(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
+                    else pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
                 }
 
-                ants[i]->randomTurn(MAX_RANDOM_TURN);
-                normalizeAngle(ants[i]->a);
-                ants[i]->move(STEP_SIZE);
-                wallCollision(ants[i]); // ensures ants are inside screen area
+                ant->randomTurn(MAX_RANDOM_TURN);
+                normalizeAngle(ant->a);
+                ant->move(STEP_SIZE);
+                ant->wallCollision(SCREEN_WIDTH, SCREEN_HEIGHT); // ensures ants are inside screen area
             }
         }
     }
 
-    for (auto& ant : ants) if (ant->alive) pheromones->produce(ant, PHEROMONE_PRODUCTION_RATE);
-}
-
-void SDL_App::wallCollision(Ant* ant) {
-    if (ant->pos.x < 0 or ant->pos.x >= SCREEN_WIDTH) {
-        ant->pos.x = ant->pos.x < 0 ? 0 : SCREEN_WIDTH-1;
-        ant->a = 180 - ant->a;
-    }
-
-    if (ant->pos.y < 0 or ant->pos.y >= SCREEN_HEIGHT) {
-        ant->pos.y = ant->pos.y < 0 ? 0 : SCREEN_HEIGHT-1;
-        ant->a = 360 - ant->a;
-    }
+    for (auto& ant : colony->ants) if (ant->alive) pheromones->produce(ant, PHEROMONE_PRODUCTION_RATE);
 }
