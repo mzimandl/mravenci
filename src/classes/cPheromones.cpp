@@ -8,12 +8,11 @@
 
 
 
-Pheromones::Pheromones(SDL_Renderer* r, Uint8 typesCount, int w, int h) {
+Pheromones::Pheromones(SDL_Renderer* r, int w, int h) {
     renderer = r;
-    levels = typesCount;
     width = w; height = h;
     
-    pheromones.resize(levels);
+    pheromones.resize(ANT_TYPES_COUNT);
     for (auto& p : pheromones) p = new float[width * height];
 
     Uint8* pixels; int pitch;
@@ -32,7 +31,7 @@ Pheromones::~Pheromones() {
     for (auto& p : pheromones) delete[] p;
 }
 
-void Pheromones::render(Uint8 type) {
+void Pheromones::render(AntTypes type) {
     Uint8* pixels; int pitch;
     float* p = pheromones[type];
 

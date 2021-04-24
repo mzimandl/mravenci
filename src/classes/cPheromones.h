@@ -8,7 +8,6 @@
 
 class Pheromones {
     private:
-        Uint8 levels;
         int width, height;
         std::vector<float* > pheromones;
 
@@ -16,10 +15,10 @@ class Pheromones {
         SDL_Texture* pheromoneTexture;
 
     public:
-        Pheromones(SDL_Renderer* renderer, Uint8 typesCount, int width, int height);
+        Pheromones(SDL_Renderer* renderer, int width, int height);
         ~Pheromones();
 
-        void render(Uint8 type);
+        void render(AntTypes type);
         void follow(Ant* ant, int area, Uint8 maxA, float strength);
         void followAverage(Ant* ant, int area, Uint8 maxA, float strength);
         void decay(float rate);

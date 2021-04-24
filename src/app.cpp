@@ -13,11 +13,6 @@
 
 
 
-enum AntTypes {
-    ANT_TYPE_EMPTY,
-    ANT_TYPES_COUNT
-};
-
 enum TextureNames {
     TEXTURE_ANT,
     TEXTURE_COLONY,
@@ -129,7 +124,7 @@ void SDL_App::initObjects() {
         ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
         ant->modify(true, ANT_TYPE_EMPTY, ANT_TYPE_EMPTY);
     }
-    pheromones = new Pheromones(renderer, ANT_TYPES_COUNT, SCREEN_WIDTH, SCREEN_HEIGHT);
+    pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 void SDL_App::render() {

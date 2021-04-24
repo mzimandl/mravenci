@@ -2,7 +2,7 @@
 
 
 
-void Ant::modify(bool isAlive, int antType, int followType) {
+void Ant::modify(bool isAlive, AntTypes antType, AntTypes followType) {
     alive = isAlive;
     type = antType;
     follow = followType;
