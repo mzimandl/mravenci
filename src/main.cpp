@@ -12,6 +12,7 @@ struct Args {
     bool enableMouse;
     bool pause;
     bool followAverage;
+    bool soundControll;
 };
 
 int main(int argc, char *argv[]) {
@@ -20,14 +21,17 @@ int main(int argc, char *argv[]) {
     args.enableMouse = false;
     args.pause = false;
     args.followAverage = false;
+    args.soundControll = false;
 
     for (int i=0; i<argc; i++) {
+        if (strcmp(argv[i], "--sound-controll") == 0) { args.soundControll = true; }
         if (strcmp(argv[i], "--measure-performance") == 0) { args.measurePerformance = true; }
         if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
         if (strcmp(argv[i], "--follow-average") == 0) { args.followAverage = true; }
         if (strcmp(argv[i], "--pause") == 0) { args.pause = true; }
         if (strcmp(argv[i], "--help") == 0) {
             std::cout << "Available flags:" << std::endl;
+            std::cout << "   --sound-controll" << std::endl;
             std::cout << "   --measure-performance" << std::endl;
             std::cout << "   --enable-mouse" << std::endl;
             std::cout << "   --follow-average" << std::endl;
@@ -40,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     SDL_App app;
 
-    if(!app.initSDL()) {
+    if(!app.initSDL(args.soundControll)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialization failed");
         return 3;
     }
@@ -112,6 +116,7 @@ int main(int argc, char *argv[]) {
 
         if (perfTimer) perfTimer->start();
 
+        app.processData(args.enableMouse);
         if (!args.pause)
             for (int i=0; i<STEPS_PER_FRAME; i++) { 
                 app.handleAnts(args.enableMouse, args.followAverage, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0);

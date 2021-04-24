@@ -1,0 +1,71 @@
+#include <iostream>
+#include <SDL2/SDL.h>
+
+#include "cSoundControll.h"
+
+
+
+SoundControll::SoundControll() {
+    //Get capture device count
+    if (SDL_GetNumAudioDevices( SDL_TRUE ) >= 1) {
+        SDL_AudioSpec desiredRecordingSpec;
+        SDL_zero(desiredRecordingSpec);
+        desiredRecordingSpec.freq = 44100;
+        desiredRecordingSpec.format = AUDIO_U8;
+        desiredRecordingSpec.channels = 1;
+        desiredRecordingSpec.samples = 4096;
+        desiredRecordingSpec.callback = NULL;
+
+        recordingDeviceId = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(0, SDL_TRUE), SDL_TRUE, &desiredRecordingSpec, &gReceivedRecordingSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+
+        int bytesPerSample = gReceivedRecordingSpec.channels * (SDL_AUDIO_BITSIZE( gReceivedRecordingSpec.format ) / 8);
+        int bytesPerSecond = gReceivedRecordingSpec.freq * bytesPerSample;
+
+        //Calculate buffer size
+        gBufferByteSize = RECORDING_BUFFER_SECONDS * bytesPerSecond;
+
+        //Calculate max buffer use
+        gBufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
+
+        //Allocate and initialize byte buffer
+        gRecordingBuffer = new Uint8[gBufferByteSize];
+        memset(gRecordingBuffer, 0, gBufferByteSize);
+
+        SDL_PauseAudioDevice(recordingDeviceId, SDL_FALSE);
+    }
+}
+
+SoundControll::~SoundControll() {
+    if( gRecordingBuffer != NULL )
+    {
+        SDL_PauseAudioDevice(recordingDeviceId, SDL_TRUE);
+
+        delete[] gRecordingBuffer;
+        gRecordingBuffer = NULL;
+    }
+}
+
+void SoundControll::checkAudio() {
+    Uint32 coppiedSize = SDL_DequeueAudio(recordingDeviceId, gRecordingBuffer, gBufferByteSize);
+    if (coppiedSize) {
+        lastLevel = 0;
+        for (int i=0; i<coppiedSize; i++) {
+            lastLevel += abs((int)(gRecordingBuffer[i]) - 128);
+        }
+        lastLevel /= coppiedSize;
+
+        if (lastLevels.size() == MAX_AVERAGE_QUEUE_SIZE) {
+            lastLevels.pop_front();
+        }
+        lastLevels.push_back(lastLevel);
+
+        for (int i=0; i<lastLevels.size(); i++) {
+            averageLevel += lastLevels[i];
+        }
+        averageLevel /= lastLevels.size();
+    }
+}
+
+int SoundControll::isLoudSound() { 
+    return (Sint8)lastLevel-(Sint8)averageLevel;
+}

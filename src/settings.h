@@ -14,7 +14,7 @@ const int CURSOR_DANGER = 500;
 const int CURSOR_CRITICAL = 2;
 
 //Ant properties
-const float ANT_SCALE_RENDER = 0.2; // size of rendered ant (of original image size)
+const float ANT_SCALE_RENDER = 0.25; // size of rendered ant (of original image size)
 const char CHANCE_TO_MOVE = 80; // 0-100 percent
 const int ANT_MIN_SPEED = 25; // minimum speed
 const int ANT_RANDOM_SPEED = 5; // random speed increase
@@ -23,7 +23,7 @@ const int MAX_RANDOM_TURN = 30; // max angle of ants random turn
 
 const float PHEROMONE_PRODUCTION_RATE = 0.3; // pheromone amount ant produces every step
 const float PHEROMONE_DECAY_RATE = 0.001; // amount of decay of pheromones every step
-const int PHEROMONES_DISTANCE = 30; // distance to which ant smells pheromones
+const int PHEROMONES_DISTANCE = 15; // distance to which ant smells pheromones
 const int PHEROMONES_ANGLE = 25; // 0-180 +/- angle in front of ant where he smels pheromones
-const float PHEROMONES_FOLLOW_STRENGTH = 0.5; // .0-1.
+const float PHEROMONES_FOLLOW_STRENGTH = 0.8; // .0-1.
 const int PHEROMONES_FOLLOW_STEP = 1; // follow pheromones every Nth step

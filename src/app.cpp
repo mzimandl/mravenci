@@ -9,6 +9,7 @@
 #include "classes/cAnt.h"
 #include "classes/cColony.h"
 #include "classes/cPheromones.h"
+#include "classes/cSoundControll.h"
 
 
 
@@ -34,6 +35,8 @@ class SDL_App {
         SDL_Renderer *renderer = NULL;
         SDL_Point cursorPos;
 
+        SoundControll* soundControll = NULL;
+
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
         Pheromones *pheromones;
@@ -45,9 +48,10 @@ class SDL_App {
         SDL_App();
         ~SDL_App();
 
-        bool initSDL();
+        bool initSDL(bool enableSoundControll);
         bool loadMedia();
         void initObjects();
+        void processData(bool enableMouse);
         void handleAnts(bool enableMouse, bool followAverage, bool follow);
         void render();
 };
@@ -66,15 +70,17 @@ SDL_App::~SDL_App() {
     delete pheromones;
     for (auto& texture : textures) delete texture;
 
+    if (soundControll != NULL) delete soundControll;
+
     SDL_Quit();
     IMG_Quit();
 }
 
-bool SDL_App::initSDL() {
+bool SDL_App::initSDL(bool enableSoundControll) {
     srand(time(NULL));
 
     //Initialize SDL
-    if(SDL_Init( SDL_INIT_VIDEO ) < 0) {
+    if(SDL_Init( SDL_INIT_VIDEO|SDL_INIT_AUDIO ) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize: %s", SDL_GetError());
         return false;
     }
@@ -94,12 +100,14 @@ bool SDL_App::initSDL() {
     }
 
     //Init SDL image
-    int flags = IMG_INIT_PNG|IMG_INIT_JPG;
-    int initted = IMG_Init(flags);
-    if((initted&flags) != flags) {
+    int imgFlags = IMG_INIT_PNG|IMG_INIT_JPG;
+    int initted = IMG_Init(imgFlags);
+    if((initted&imgFlags) != imgFlags) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "IMG_Init: Failed to init required jpg and png support: %s", IMG_GetError());
         return false;
     }
+
+    if (enableSoundControll) soundControll = new SoundControll;
 
     return true;
 }
@@ -151,8 +159,13 @@ void SDL_App::deflectAnt(Ant* ant, float x, float y, int dangerDist, int critica
     }
 }
 
-void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
+void SDL_App::processData(bool enableMouse) {
+    if (soundControll != NULL) soundControll->checkAudio();
     if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
+}
+
+void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
+    if (soundControll != NULL) follow = soundControll->isLoudSound() < 10;
 
     pheromones->decay(PHEROMONE_DECAY_RATE);
 
