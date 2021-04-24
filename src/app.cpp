@@ -154,7 +154,8 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
         #pragma omp for schedule(dynamic) nowait
         for (i=0; i<NUMBER_OF_ANTS; i++) {
             auto& ant = colony->ants[i];
-            if (rand() % 100 < CHANCE_TO_MOVE and ant->alive) {
+            ant->moving = rand() % 100 < CHANCE_TO_MOVE;
+            if (ant->alive and ant->moving) {
                 if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
 
                 if (follow) {
@@ -170,5 +171,5 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
         }
     }
 
-    for (auto& ant : colony->ants) if (ant->alive) pheromones->produce(ant, PHEROMONE_PRODUCTION_RATE);
+    for (auto& ant : colony->ants) if (ant->alive and ant->moving) pheromones->produce(ant, PHEROMONE_PRODUCTION_RATE);
 }

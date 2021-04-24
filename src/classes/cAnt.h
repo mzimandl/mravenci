@@ -10,9 +10,8 @@ enum AntTypes {
 
 class Ant: public Object {
     public:
-        bool alive;
-        AntTypes type;
-        AntTypes follow;
+        bool alive, moving;
+        AntTypes type, follow;
 
         using Object::Object;
 
