@@ -36,8 +36,7 @@ SoundControll::SoundControll() {
 }
 
 SoundControll::~SoundControll() {
-    if( gRecordingBuffer != NULL )
-    {
+    if( gRecordingBuffer != NULL ) {
         SDL_PauseAudioDevice(recordingDeviceId, SDL_TRUE);
 
         delete[] gRecordingBuffer;
@@ -49,23 +48,21 @@ void SoundControll::checkAudio() {
     Uint32 coppiedSize = SDL_DequeueAudio(recordingDeviceId, gRecordingBuffer, gBufferByteSize);
     if (coppiedSize) {
         lastLevel = 0;
+        averageLevel = 0;
+
         for (int i=0; i<coppiedSize; i++) {
             lastLevel += abs((int)(gRecordingBuffer[i]) - 128);
         }
         lastLevel /= coppiedSize;
 
-        if (lastLevels.size() == MAX_AVERAGE_QUEUE_SIZE) {
-            lastLevels.pop_front();
-        }
+        if (lastLevels.size() == MAX_AVERAGE_QUEUE_SIZE) lastLevels.pop_front();
         lastLevels.push_back(lastLevel);
 
-        for (int i=0; i<lastLevels.size(); i++) {
-            averageLevel += lastLevels[i];
-        }
+        for (auto& level : lastLevels) averageLevel += level;
         averageLevel /= lastLevels.size();
     }
 }
 
 int SoundControll::isLoudSound() { 
-    return (Sint8)lastLevel-(Sint8)averageLevel;
+    return lastLevel-averageLevel;
 }

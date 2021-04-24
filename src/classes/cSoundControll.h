@@ -22,9 +22,9 @@ class SoundControll {
         Uint32 gBufferByteSize = 0;
         Uint32 gBufferByteMaxPosition = 0;
 
-        std::deque<Uint8 > lastLevels;
-        Uint32 lastLevel;
-        Uint32 averageLevel;
+        std::deque<Sint8 > lastLevels;
+        Uint32 lastLevel = 0;
+        Uint32 averageLevel = 0;
 
     public:
         SoundControll();

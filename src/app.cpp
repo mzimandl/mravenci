@@ -140,7 +140,11 @@ void SDL_App::processData(bool enableMouse) {
 }
 
 void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
-    if (soundControll != NULL) follow = soundControll->isLoudSound() < 10;
+    int soundCorrection = 0;
+    if (soundControll != NULL) {
+        soundCorrection = std::max(0, soundControll->isLoudSound());
+        follow = soundCorrection < 10 and follow;
+    }
 
     pheromones->decay(PHEROMONE_DECAY_RATE);
 
@@ -158,9 +162,9 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
                     else pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
                 }
 
-                ant->randomTurn(MAX_RANDOM_TURN);
+                ant->randomTurn(MAX_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->a);
-                ant->move(STEP_SIZE);
+                ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
                 ant->wallCollision(SCREEN_WIDTH, SCREEN_HEIGHT); // ensures ants are inside screen area
             }
         }
