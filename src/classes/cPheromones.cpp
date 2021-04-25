@@ -8,9 +8,9 @@
 
 
 
-Pheromones::Pheromones(SDL_Renderer* r, int w, int h) {
-    renderer = r;
-    width = w; height = h;
+Pheromones::Pheromones(SDL_Renderer* r, int w, int h) :
+renderer(r), width(w), height(h)
+{
     
     pheromones.resize(ANT_TYPES_COUNT);
     for (auto& p : pheromones) p = new float[width * height];

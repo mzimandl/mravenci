@@ -28,8 +28,9 @@ SDL_Texture* loadTexture(std::string path, SDL_Renderer *renderer) {
     return newTexture;
 }
 
-Texture::Texture(SDL_Renderer* r, std::string path) {
-    renderer = r;
+Texture::Texture(SDL_Renderer* r, std::string path) :
+renderer(r)
+{
     texture = loadTexture(path, renderer);
     SDL_QueryTexture(texture, NULL, NULL, &sRect.w, &sRect.h);
 }

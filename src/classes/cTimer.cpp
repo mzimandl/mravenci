@@ -4,15 +4,12 @@
 
 
 
-Timer::Timer()
-{
-    //Initialize the variables
-    mStartTicks = 0;
-    mPausedTicks = 0;
-
-    mPaused = false;
-    mStarted = false;
-}
+Timer::Timer() :
+mStartTicks(0),
+mPausedTicks(0),
+mPaused(false),
+mStarted(false)
+{}
 
 void Timer::start()
 {

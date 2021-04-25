@@ -1,4 +1,5 @@
 #pragma once
+#include "cTexture.h"
 #include "cObject.h"
 
 
@@ -13,9 +14,8 @@ class Ant: public Object {
         bool alive, moving;
         AntTypes type, follow;
 
-        using Object::Object;
+        Ant(Texture* t);
 
-        void modify(bool isAlive, AntTypes antType, AntTypes followType);
         void randomTurn(float maxA);
         void deflect(float x, float y, int dangerDist, int criticalDist);
         void wallCollision(int width, int height);

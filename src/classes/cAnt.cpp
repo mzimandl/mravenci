@@ -1,14 +1,13 @@
 #include "../math.h"
 
+#include "cTexture.h"
 #include "cAnt.h"
 
 
 
-void Ant::modify(bool isAlive, AntTypes antType, AntTypes followType) {
-    alive = isAlive;
-    type = antType;
-    follow = followType;
-}
+Ant::Ant(Texture* t) :
+Object(t), alive(true), moving(true), type(ANT_TYPE_EMPTY), follow(ANT_TYPE_EMPTY)
+{}
 
 void Ant::randomTurn(float maxA) {
     a += (static_cast<float>(rand())/static_cast<float>(RAND_MAX)) * maxA - maxA/2;

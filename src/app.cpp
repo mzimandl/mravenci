@@ -122,7 +122,6 @@ void SDL_App::initObjects() {
     for (auto& ant : colony->ants) {
         ant = new Ant(textures[TEXTURE_ANT]);
         ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
-        ant->modify(true, ANT_TYPE_EMPTY, ANT_TYPE_EMPTY);
     }
     pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 }

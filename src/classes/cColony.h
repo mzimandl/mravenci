@@ -9,7 +9,7 @@
 
 class Colony: public Object {
     private:
-        int population = 0;
+        int population;
 
     public:
         Colony(Texture* t, int maxPopulation);

@@ -18,13 +18,13 @@ class SoundControll {
         SDL_AudioDeviceID recordingDeviceId;
         SDL_AudioSpec gReceivedRecordingSpec;
 
-        Uint8* gRecordingBuffer = NULL;
-        Uint32 gBufferByteSize = 0;
-        Uint32 gBufferByteMaxPosition = 0;
+        Uint8* gRecordingBuffer;
+        Uint32 gBufferByteSize;
+        Uint32 gBufferByteMaxPosition;
 
         std::deque<Sint8 > lastLevels;
-        Uint32 lastLevel = 0;
-        Uint32 averageLevel = 0;
+        Uint32 lastLevel;
+        Uint32 averageLevel;
 
     public:
         SoundControll();

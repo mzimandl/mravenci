@@ -5,7 +5,10 @@
 
 
 
-SoundControll::SoundControll() {
+SoundControll::SoundControll() :
+gBufferByteSize(0), gBufferByteMaxPosition(0), lastLevel(0), averageLevel(0)
+{
+
     //Get capture device count
     if (SDL_GetNumAudioDevices( SDL_TRUE ) >= 1) {
         SDL_AudioSpec desiredRecordingSpec;

@@ -19,9 +19,9 @@ bool inRange(Object* obj1, Object* obj2, int d) {
     return false;
 }
 
-Object::Object(Texture* t) {
-    texture = t;
-}
+Object::Object(Texture* t) :
+texture(t), a(0), v(0)
+{}
 
 void Object::move(float dt) {
     pos.x += v*cos(a*DEG_TO_RAD)*dt;

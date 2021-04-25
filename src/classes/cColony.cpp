@@ -3,7 +3,9 @@
 
 
 
-Colony::Colony(Texture* t, int maxPopulation) : Object(t) {
+Colony::Colony(Texture* t, int maxPopulation) :
+Object(t), population(0)
+{
     ants.resize(maxPopulation);
 }
 
