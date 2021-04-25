@@ -3,8 +3,8 @@
 
 
 
-Colony::Colony(Texture* t, int population) : Object(t) {
-    ants.resize(population);
+Colony::Colony(Texture* t, int maxPopulation) : Object(t) {
+    ants.resize(maxPopulation);
 }
 
 Colony::~Colony() {
@@ -14,4 +14,21 @@ Colony::~Colony() {
 
 void Colony::renderAnts(float scale = (float)1.0) {
     for (auto& ant : ants) if (ant->alive) ant->render(scale);
+}
+
+void Colony::reviveAnts(int N) {
+    if (population < ants.size()) {
+        for (auto& ant : ants) {
+            if (!ant->alive) {
+                ant->pos = pos;
+                ant->alive == true;
+                population++;
+                N--;
+            }
+
+            if (population == ants.size() or N == 0) {
+                break;
+            }
+        }
+    }
 }
