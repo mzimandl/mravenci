@@ -28,3 +28,5 @@ const int PHEROMONES_DISTANCE = 15; // distance to which ant smells pheromones
 const int PHEROMONES_ANGLE = 25; // 0-180 +/- angle in front of ant where he smels pheromones
 const float PHEROMONES_FOLLOW_STRENGTH = 0.8; // .0-1.
 const int PHEROMONES_FOLLOW_STEP = 1; // follow pheromones every Nth step
+
+const int SOUND_CONTROL_DISTURB_LEVEL = 10;

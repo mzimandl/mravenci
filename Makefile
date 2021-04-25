@@ -8,7 +8,7 @@ src/classes/cObject.cpp\
 src/classes/cAnt.cpp\
 src/classes/cColony.cpp\
 src/classes/cPheromones.cpp\
-src/classes/cSoundControll.cpp
+src/classes/cSoundControl.cpp
 
 #CC specifies which compiler we're using
 CC = g++ -std=c++11

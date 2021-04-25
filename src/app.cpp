@@ -9,7 +9,7 @@
 #include "classes/cAnt.h"
 #include "classes/cColony.h"
 #include "classes/cPheromones.h"
-#include "classes/cSoundControll.h"
+#include "classes/cSoundControl.h"
 
 
 
@@ -30,7 +30,7 @@ class SDL_App {
         SDL_Renderer *renderer;
         SDL_Point cursorPos;
 
-        SoundControll* soundControll;
+        SoundControl* soundControl;
 
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
@@ -43,7 +43,7 @@ class SDL_App {
         SDL_App();
         ~SDL_App();
 
-        bool initSDL(bool enableSoundControll);
+        bool initSDL(bool enableSoundControl);
         bool loadMedia();
         void initObjects();
         void processData(bool enableMouse);
@@ -65,13 +65,13 @@ SDL_App::~SDL_App() {
     delete pheromones;
     for (auto& texture : textures) delete texture;
 
-    if (soundControll != NULL) delete soundControll;
+    if (soundControl != NULL) delete soundControl;
 
     SDL_Quit();
     IMG_Quit();
 }
 
-bool SDL_App::initSDL(bool enableSoundControll) {
+bool SDL_App::initSDL(bool enableSoundControl) {
     srand(time(NULL));
 
     //Initialize SDL
@@ -102,7 +102,7 @@ bool SDL_App::initSDL(bool enableSoundControll) {
         return false;
     }
 
-    if (enableSoundControll) soundControll = new SoundControll;
+    if (enableSoundControl) soundControl = new SoundControl;
 
     return true;
 }
@@ -131,15 +131,15 @@ void SDL_App::render() {
 }
 
 void SDL_App::processData(bool enableMouse) {
-    if (soundControll != NULL) soundControll->checkAudio();
+    if (soundControl != NULL) soundControl->checkAudio();
     if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
 }
 
 void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
     int soundCorrection = 0;
-    if (soundControll != NULL) {
-        soundCorrection = std::max(0, soundControll->isLoudSound());
-        follow = soundCorrection < 10 and follow;
+    if (soundControl != NULL) {
+        soundCorrection = std::max(0, soundControl->avgLevelVariation());
+        follow = soundCorrection < SOUND_CONTROL_DISTURB_LEVEL and follow;
     }
 
     pheromones->decay(PHEROMONE_DECAY_RATE);

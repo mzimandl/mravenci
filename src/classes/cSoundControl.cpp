@@ -1,11 +1,11 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 
-#include "cSoundControll.h"
+#include "cSoundControl.h"
 
 
 
-SoundControll::SoundControll() :
+SoundControl::SoundControl() :
 gBufferByteSize(0), gBufferByteMaxPosition(0), lastLevel(0), averageLevel(0)
 {
 
@@ -38,7 +38,7 @@ gBufferByteSize(0), gBufferByteMaxPosition(0), lastLevel(0), averageLevel(0)
     }
 }
 
-SoundControll::~SoundControll() {
+SoundControl::~SoundControl() {
     if( gRecordingBuffer != NULL ) {
         SDL_PauseAudioDevice(recordingDeviceId, SDL_TRUE);
 
@@ -47,7 +47,7 @@ SoundControll::~SoundControll() {
     }
 }
 
-void SoundControll::checkAudio() {
+void SoundControl::checkAudio() {
     Uint32 coppiedSize = SDL_DequeueAudio(recordingDeviceId, gRecordingBuffer, gBufferByteSize);
     if (coppiedSize) {
         lastLevel = 0;
@@ -66,6 +66,6 @@ void SoundControll::checkAudio() {
     }
 }
 
-int SoundControll::isLoudSound() { 
+int SoundControl::avgLevelVariation() { 
     return lastLevel-averageLevel;
 }

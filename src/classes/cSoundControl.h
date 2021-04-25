@@ -13,7 +13,7 @@ const int RECORDING_BUFFER_SECONDS = MAX_RECORDING_SECONDS + 1;
 const int MAX_AVERAGE_QUEUE_SIZE = 10;
 
 
-class SoundControll {
+class SoundControl {
     private:
         SDL_AudioDeviceID recordingDeviceId;
         SDL_AudioSpec gReceivedRecordingSpec;
@@ -27,10 +27,10 @@ class SoundControll {
         Uint32 averageLevel;
 
     public:
-        SoundControll();
-        ~SoundControll();
+        SoundControl();
+        ~SoundControl();
 
         void checkAudio();
-        int isLoudSound();
+        int avgLevelVariation();
 
 };
