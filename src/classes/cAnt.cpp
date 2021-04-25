@@ -6,7 +6,7 @@
 
 
 Ant::Ant(Texture* t) :
-Object(t), alive(true), moving(true), type(ANT_TYPE_EMPTY), follow(ANT_TYPE_EMPTY)
+Object(t), alive(false), moving(true), type(ANT_TYPE_EMPTY), follow(ANT_TYPE_EMPTY)
 {}
 
 void Ant::randomTurn(float maxA) {

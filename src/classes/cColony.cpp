@@ -1,3 +1,4 @@
+#include <iostream>
 #include "cTexture.h"
 #include "cColony.h"
 
@@ -18,12 +19,12 @@ void Colony::renderAnts(float scale = (float)1.0) {
     for (auto& ant : ants) if (ant->alive) ant->render(scale);
 }
 
-void Colony::reviveAnts(int N) {
+void Colony::reviveAnts(int N, int speed, int speedVariation) {
     if (population < ants.size()) {
         for (auto& ant : ants) {
             if (!ant->alive) {
-                ant->pos = pos;
-                ant->alive == true;
+                ant->setValues(pos.x, pos.y, rand() % speedVariation + speed, rand() % 360);
+                ant->alive = true;
                 population++;
                 N--;
             }

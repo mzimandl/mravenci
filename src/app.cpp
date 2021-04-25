@@ -26,11 +26,11 @@ const std::string TEXTURE_PATHS[TEXTURE_COUNT] = {
 
 class SDL_App {
     private:
-        SDL_Window *window = NULL;
-        SDL_Renderer *renderer = NULL;
+        SDL_Window *window;
+        SDL_Renderer *renderer;
         SDL_Point cursorPos;
 
-        SoundControll* soundControll = NULL;
+        SoundControll* soundControll;
 
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
@@ -117,12 +117,9 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    colony = new Colony(textures[TEXTURE_COLONY], NUMBER_OF_ANTS);
+    colony = new Colony(textures[TEXTURE_COLONY], ANT_MAX_POPULATION);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
-    for (auto& ant : colony->ants) {
-        ant = new Ant(textures[TEXTURE_ANT]);
-        ant->setValues(colony->pos.x, colony->pos.y, rand() % ANT_RANDOM_SPEED + ANT_MIN_SPEED, rand() % 360);
-    }
+    for (auto& ant : colony->ants) ant = new Ant(textures[TEXTURE_ANT]);
     pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
@@ -146,14 +143,15 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
     }
 
     pheromones->decay(PHEROMONE_DECAY_RATE);
+    colony->reviveAnts(ANT_REVIVE_RATE, ANT_SPEED, ANT_SPEED_VARIATION);
 
     int i;
     #pragma omp parallel default(shared) private(i)
     {
         #pragma omp for schedule(dynamic) nowait
-        for (i=0; i<NUMBER_OF_ANTS; i++) {
+        for (i=0; i<ANT_MAX_POPULATION; i++) {
             auto& ant = colony->ants[i];
-            ant->moving = rand() % 100 < CHANCE_TO_MOVE;
+            ant->moving = rand() % 100 < ANT_CHANCE_TO_MOVE;
             if (ant->alive and ant->moving) {
                 if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
 
@@ -162,7 +160,7 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
                     else pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
                 }
 
-                ant->randomTurn(MAX_RANDOM_TURN + soundCorrection);
+                ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->a);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
                 ant->wallCollision(SCREEN_WIDTH, SCREEN_HEIGHT); // ensures ants are inside screen area

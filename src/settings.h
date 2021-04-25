@@ -15,11 +15,12 @@ const int CURSOR_CRITICAL = 2;
 
 //Ant properties
 const float ANT_SCALE_RENDER = 0.25; // size of rendered ant (of original image size)
-const char CHANCE_TO_MOVE = 80; // 0-100 percent
-const int ANT_MIN_SPEED = 25; // minimum speed
-const int ANT_RANDOM_SPEED = 5; // random speed increase
-const int NUMBER_OF_ANTS = 1000; // ant population
-const int MAX_RANDOM_TURN = 30; // max angle of ants random turn
+const int ANT_MAX_POPULATION = 1000; // ant population
+const int ANT_SPEED = 25; // minimum speed
+const int ANT_SPEED_VARIATION = 5; // random speed increase
+const int ANT_RANDOM_TURN = 30; // max angle of ants random turn
+const char ANT_CHANCE_TO_MOVE = 80; // 0-100 percent
+const int ANT_REVIVE_RATE = 30;
 
 const float PHEROMONE_PRODUCTION_RATE = 0.3; // pheromone amount ant produces every step
 const float PHEROMONE_DECAY_RATE = 0.001; // amount of decay of pheromones every step
