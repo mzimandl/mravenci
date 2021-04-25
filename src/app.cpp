@@ -51,9 +51,9 @@ class SDL_App {
         void render();
 };
 
-SDL_App::SDL_App() {
-
-}
+SDL_App::SDL_App() :
+window(NULL), renderer(NULL), soundControl(NULL), colony(NULL), pheromones(NULL)
+{}
 
 SDL_App::~SDL_App() {
     SDL_DestroyRenderer(renderer);
@@ -61,11 +61,15 @@ SDL_App::~SDL_App() {
     SDL_DestroyWindow(window);
     window = NULL;
 
-    delete colony;
-    delete pheromones;
-    for (auto& texture : textures) delete texture;
+    delete colony; colony = NULL;
+    delete pheromones; pheromones = NULL;
+    for (auto& texture : textures) {
+        delete texture; texture = NULL;
+    }
 
-    if (soundControl != NULL) delete soundControl;
+    if (soundControl != NULL) {
+        delete soundControl; soundControl = NULL;
+    }
 
     SDL_Quit();
     IMG_Quit();
