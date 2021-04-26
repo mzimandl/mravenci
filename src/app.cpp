@@ -1,4 +1,5 @@
 #include <omp.h>
+#include <vector>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -149,12 +150,12 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
     pheromones->decay(PHEROMONE_DECAY_RATE);
     colony->reviveAnts(ANT_REVIVE_RATE, ANT_SPEED, ANT_SPEED_VARIATION);
 
-    int i;
+    std::vector<Ant *>::iterator i;
     #pragma omp parallel default(shared) private(i)
     {
         #pragma omp for schedule(dynamic) nowait
-        for (i=0; i<ANT_MAX_POPULATION; i++) {
-            auto& ant = colony->ants[i];
+        for (i = colony->ants.begin(); i != colony->ants.end(); i++) {
+            Ant* ant = *i;
             ant->moving = rand() % 100 < ANT_CHANCE_TO_MOVE;
             if (ant->alive and ant->moving) {
                 if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);

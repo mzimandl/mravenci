@@ -1,4 +1,3 @@
-#include <iostream>
 #include "cTexture.h"
 #include "cColony.h"
 
