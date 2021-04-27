@@ -18,5 +18,5 @@ class Ant: public Object {
 
         void randomTurn(float maxA);
         void deflect(float x, float y, int dangerDist, int criticalDist);
-        void wallCollision(int width, int height);
+        void checkWallCollision(int width, int height);
 };

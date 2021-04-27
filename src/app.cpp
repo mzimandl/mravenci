@@ -6,7 +6,6 @@
 #include "settings.h"
 #include "math.h"
 #include "classes/cTexture.h"
-#include "classes/cObject.h"
 #include "classes/cAnt.h"
 #include "classes/cColony.h"
 #include "classes/cPheromones.h"
@@ -36,9 +35,6 @@ class SDL_App {
         Texture *textures[TEXTURE_COUNT];
         Colony *colony;
         Pheromones *pheromones;
-
-        void deflectAnt(Ant* ant, float x, float y, int dangerDist, int criticalDist);
-        void wallCollision(Ant* ant);
 
     public:
         SDL_App();
@@ -168,7 +164,7 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
                 ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->a);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
-                ant->wallCollision(SCREEN_WIDTH, SCREEN_HEIGHT); // ensures ants are inside screen area
+                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT); // ensures ants are inside screen area
             }
         }
     }
