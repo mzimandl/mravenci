@@ -1,5 +1,5 @@
 #pragma once
-#include <deque>
+#include <queue>
 #include <SDL2/SDL.h>
 
 
@@ -22,9 +22,10 @@ class SoundControl {
         Uint32 gBufferByteSize;
         Uint32 gBufferByteMaxPosition;
 
-        std::deque<Sint8 > lastLevels;
-        Uint32 lastLevel;
+        std::queue<Sint8 > lastLevels;
+        Uint32 sumLevels;
         Uint32 averageLevel;
+        Uint32 lastLevel;
 
     public:
         SoundControl();

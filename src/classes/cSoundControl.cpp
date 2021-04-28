@@ -6,7 +6,7 @@
 
 
 SoundControl::SoundControl() :
-gBufferByteSize(0), gBufferByteMaxPosition(0), lastLevel(0), averageLevel(0)
+gBufferByteSize(0), gBufferByteMaxPosition(0), sumLevels(0), lastLevel(0), averageLevel(0)
 {
 
     //Get capture device count
@@ -51,18 +51,18 @@ void SoundControl::checkAudio() {
     Uint32 coppiedSize = SDL_DequeueAudio(recordingDeviceId, gRecordingBuffer, gBufferByteSize);
     if (coppiedSize) {
         lastLevel = 0;
-        averageLevel = 0;
-
         for (int i=0; i<coppiedSize; i++) {
             lastLevel += abs((int)(gRecordingBuffer[i]) - 128);
         }
         lastLevel /= coppiedSize;
 
-        if (lastLevels.size() == MAX_AVERAGE_QUEUE_SIZE) lastLevels.pop_front();
-        lastLevels.push_back(lastLevel);
-
-        for (auto& level : lastLevels) averageLevel += level;
-        averageLevel /= lastLevels.size();
+        sumLevels += lastLevel;
+        if (lastLevels.size() == MAX_AVERAGE_QUEUE_SIZE) {
+            sumLevels -= lastLevels.front();
+            lastLevels.pop();
+        }
+        lastLevels.push(lastLevel);
+        averageLevel = sumLevels/lastLevels.size();
     }
 }
 
