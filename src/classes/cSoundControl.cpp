@@ -16,7 +16,7 @@ gBufferByteSize(0), gBufferByteMaxPosition(0), lastLevel(0), averageLevel(0)
         desiredRecordingSpec.freq = 44100;
         desiredRecordingSpec.format = AUDIO_U8;
         desiredRecordingSpec.channels = 1;
-        desiredRecordingSpec.samples = 4096;
+        desiredRecordingSpec.samples = 512;
         desiredRecordingSpec.callback = NULL;
 
         recordingDeviceId = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(0, SDL_TRUE), SDL_TRUE, &desiredRecordingSpec, &gReceivedRecordingSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
