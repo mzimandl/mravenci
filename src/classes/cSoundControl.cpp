@@ -13,7 +13,7 @@ gBufferByteSize(0), gBufferByteMaxPosition(0), lastLevel(0), averageLevel(0)
     if (SDL_GetNumAudioDevices( SDL_TRUE ) >= 1) {
         SDL_AudioSpec desiredRecordingSpec;
         SDL_zero(desiredRecordingSpec);
-        desiredRecordingSpec.freq = 44100;
+        desiredRecordingSpec.freq = 22050;
         desiredRecordingSpec.format = AUDIO_U8;
         desiredRecordingSpec.channels = 1;
         desiredRecordingSpec.samples = 512;
