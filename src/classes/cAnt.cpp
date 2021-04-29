@@ -33,14 +33,20 @@ void Ant::deflect(float x, float y, int dangerDist, int criticalDist) {
     }
 }
 
-void Ant::checkWallCollision(int width, int height) {
-    if (pos.x < 0 or pos.x > width-1) {
-        pos.x = pos.x < 0 ? -pos.x : 2*(width-1)-pos.x ;
-        a = 180 - a;
-    }
+void Ant::checkWallCollision(int width, int height, bool periodic) {
+    if (periodic) {
+        if (pos.x < 0) pos.x += width-1; else if (pos.x > width-1) pos.x -= width-1;
+        if (pos.y < 0) pos.y += height-1; else if (pos.y > height-1) pos.y -= height-1;
 
-    if (pos.y < 0 or pos.y >= height) {
-        pos.y = pos.y < 0 ? -pos.y : 2*(height-1)-pos.y;
-        a = 360 - a;
+    } else {
+        if (pos.x < 0 or pos.x > width-1) {
+            pos.x = pos.x < 0 ? -pos.x : 2*(width-1)-pos.x;
+            a = 180 - a;
+        }
+
+        if (pos.y < 0 or pos.y > height-1) {
+            pos.y = pos.y < 0 ? -pos.y : 2*(height-1)-pos.y;
+            a = 360 - a;
+        }
     }
 }

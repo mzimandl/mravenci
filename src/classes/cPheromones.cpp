@@ -11,7 +11,7 @@
 Pheromones::Pheromones(SDL_Renderer* r, int w, int h) :
 renderer(r), width(w), height(h)
 {
-    
+
     pheromones.resize(ANT_TYPES_COUNT);
     for (auto& p : pheromones) p = new float[width * height];
 
@@ -49,9 +49,9 @@ void Pheromones::render(AntTypes type) {
     SDL_RenderCopy(renderer, pheromoneTexture, NULL, NULL);
 }
 
-void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength) {
-    int x = (int)round(ant->pos.x);
-    int y = (int)round(ant->pos.y);
+void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength, bool periodic) {
+    int x = (int)ant->pos.x;
+    int y = (int)ant->pos.y;
 
     const int area2 = area*area;
     const float arc = 2*(float)maxA/3;
@@ -59,9 +59,18 @@ void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength) {
 
     float* p = pheromones[ant->follow];
 
-    for (int j = std::max(0, y-area); j < std::min(height, y+area+1); j++) {
-        for (int i = std::max(0, x-area); i < std::min(width, x+area+1); i++) {
-            if (p[i + j*width] > 0) {
+    for (int j = y-area; j <= y+area; j++) {
+        for (int i = x-area; i <= x+area; i++) {
+
+            int ii = i, jj = j;
+            if (periodic) {
+                if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
+                if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
+
+            } else if (i < 0 or i > width-1 or j < 0 or j > height-1 )
+                continue;
+
+            if (p[ii + jj*width] > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;
 
@@ -92,9 +101,9 @@ void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength) {
     }
 }
 
-void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
-    int x = (int)round(ant->pos.x);
-    int y = (int)round(ant->pos.y);
+void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength, bool periodic) {
+    int x = (int)ant->pos.x;
+    int y = (int)ant->pos.y;
 
     const int area2 = area*area;
 
@@ -103,9 +112,18 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength) {
 
     float* p = pheromones[ant->follow];
 
-    for (int j = std::max(0, y-area); j < std::min(height, y+area+1); j++) {
-        for (int i = std::max(0, x-area); i < std::min(width, x+area+1); i++) {
-            const float intensity = p[i + j*width];
+   for (int j = y-area; j <= y+area; j++) {
+        for (int i = x-area; i <= x+area; i++) {
+
+            int ii = i, jj = j;
+            if (periodic) {
+                if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
+                if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
+
+            } else if (i < 0 or i > width-1 or j < 0 or j > height-1)
+                continue;
+
+            const float intensity = p[ii + jj*width];
             if (intensity > 0) {
                 float dx = i - ant->pos.x;
                 float dy = j - ant->pos.y;

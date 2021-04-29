@@ -44,7 +44,7 @@ class SDL_App {
         bool loadMedia();
         void initObjects();
         void processData(bool enableMouse);
-        void handleAnts(bool enableMouse, bool followAverage, bool follow);
+        void handleAnts(bool enableMouse, bool followAverage, bool follow, bool periodic);
         void render();
 };
 
@@ -136,7 +136,7 @@ void SDL_App::processData(bool enableMouse) {
     if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
 }
 
-void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = true) {
+void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow, bool periodic) {
     int soundCorrection = 0;
     if (soundControl != NULL) {
         soundCorrection = std::max(0, soundControl->avgLevelVariation());
@@ -157,14 +157,14 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow = tru
                 if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
 
                 if (follow) {
-                    if (followAverage) pheromones->followAverage(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
-                    else pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH);
+                    if (followAverage) pheromones->followAverage(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, periodic);
+                    else pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, periodic);
                 }
 
                 ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->a);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
-                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT); // ensures ants are inside screen area
+                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, periodic); // ensures ants are inside screen area
             }
         }
     }

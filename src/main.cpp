@@ -13,6 +13,7 @@ struct Args {
     bool pause;
     bool followAverage;
     bool soundControl;
+    bool periodicWalls;
 };
 
 int main(int argc, char *argv[]) {
@@ -22,12 +23,14 @@ int main(int argc, char *argv[]) {
     args.pause = false;
     args.followAverage = false;
     args.soundControl = false;
+    args.periodicWalls = false;
 
     for (int i=0; i<argc; i++) {
         if (strcmp(argv[i], "--sound-control") == 0) { args.soundControl = true; }
         if (strcmp(argv[i], "--measure-performance") == 0) { args.measurePerformance = true; }
         if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
         if (strcmp(argv[i], "--follow-average") == 0) { args.followAverage = true; }
+        if (strcmp(argv[i], "--periodic-walls") == 0) { args.periodicWalls = true; }
         if (strcmp(argv[i], "--pause") == 0) { args.pause = true; }
         if (strcmp(argv[i], "--help") == 0) {
             std::cout << "Available flags:" << std::endl;
@@ -118,8 +121,8 @@ int main(int argc, char *argv[]) {
 
         app.processData(args.enableMouse);
         if (!args.pause)
-            for (int i=0; i<STEPS_PER_FRAME; i++) { 
-                app.handleAnts(args.enableMouse, args.followAverage, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0);
+            for (int i=0; i<STEPS_PER_FRAME; i++) {
+                app.handleAnts(args.enableMouse, args.followAverage, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0, args.periodicWalls);
                 if (followCycles == PHEROMONES_FOLLOW_STEP) followCycles = 1; else followCycles++;
             }
 
