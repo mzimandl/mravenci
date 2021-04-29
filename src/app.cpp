@@ -44,7 +44,7 @@ class SDL_App {
         bool loadMedia();
         void initObjects();
         void processData(bool enableMouse);
-        void handleAnts(bool enableMouse, bool followAverage, bool follow, bool periodic);
+        void handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode);
         void render();
 };
 
@@ -136,7 +136,7 @@ void SDL_App::processData(bool enableMouse) {
     if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
 }
 
-void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow, bool periodic) {
+void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode) {
     int soundCorrection = 0;
     if (soundControl != NULL) {
         soundCorrection = std::max(0, soundControl->avgLevelVariation());
@@ -144,6 +144,8 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow, bool
     }
 
     pheromones->decay(PHEROMONE_DECAY_RATE);
+    
+    if (borderMode == BORDER_KILL) colony->checkPopulation();
     colony->reviveAnts(ANT_REVIVE_RATE, ANT_SPEED, ANT_SPEED_VARIATION);
 
     std::vector<Ant *>::iterator i;
@@ -156,15 +158,20 @@ void SDL_App::handleAnts(bool enableMouse, bool followAverage, bool follow, bool
             if (ant->alive and ant->moving) {
                 if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
 
-                if (follow) {
-                    if (followAverage) pheromones->followAverage(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, periodic);
-                    else pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, periodic);
+                switch (followMode) {
+                    case FOLLOW_COUNT:
+                        pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
+                        break;
+
+                    case FOLLOW_AVEARGE:
+                        pheromones->followAverage(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
+                        break; 
                 }
 
                 ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->a);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
-                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, periodic); // ensures ants are inside screen area
+                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, borderMode); // ensures ants are inside screen area
             }
         }
     }

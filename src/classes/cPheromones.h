@@ -19,8 +19,8 @@ class Pheromones {
         ~Pheromones();
 
         void render(AntTypes type);
-        void follow(Ant* ant, int area, Uint8 maxA, float strength, bool periodic);
-        void followAverage(Ant* ant, int area, Uint8 maxA, float strength, bool periodic);
+        void follow(Ant* ant, int area, Uint8 maxA, float strength, BorderMode borderMode);
+        void followAverage(Ant* ant, int area, Uint8 maxA, float strength, BorderMode borderMode);
         void decay(float rate);
         void produce(Ant* ant, float rate);
 };

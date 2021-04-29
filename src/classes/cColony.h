@@ -18,5 +18,6 @@ class Colony: public Object {
         std::vector<Ant *> ants;
 
         void renderAnts(float scale);
+        void checkPopulation();
         void reviveAnts(int N, int speed, int speedVariation);
 };

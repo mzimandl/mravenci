@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 
 #include "app.cpp"
+#include "classes/cAnt.h"
 #include "classes/cTimer.h"
 
 
@@ -11,9 +12,9 @@ struct Args {
     bool measurePerformance;
     bool enableMouse;
     bool pause;
-    bool followAverage;
     bool soundControl;
-    bool periodicWalls;
+    FollowMode followMode;
+    BorderMode borderMode;
 };
 
 int main(int argc, char *argv[]) {
@@ -21,23 +22,40 @@ int main(int argc, char *argv[]) {
     args.measurePerformance = false;
     args.enableMouse = false;
     args.pause = false;
-    args.followAverage = false;
     args.soundControl = false;
-    args.periodicWalls = false;
+    args.followMode = FOLLOW_COUNT;
+    args.borderMode = BORDER_BOUNCE;
 
-    for (int i=0; i<argc; i++) {
-        if (strcmp(argv[i], "--sound-control") == 0) { args.soundControl = true; }
-        if (strcmp(argv[i], "--measure-performance") == 0) { args.measurePerformance = true; }
-        if (strcmp(argv[i], "--enable-mouse") == 0) { args.enableMouse = true; }
-        if (strcmp(argv[i], "--follow-average") == 0) { args.followAverage = true; }
-        if (strcmp(argv[i], "--periodic-walls") == 0) { args.periodicWalls = true; }
-        if (strcmp(argv[i], "--pause") == 0) { args.pause = true; }
-        if (strcmp(argv[i], "--help") == 0) {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--sound-control") == 0) args.soundControl = true;
+        else if (strcmp(argv[i], "--measure-performance") == 0) args.measurePerformance = true;
+        else if (strcmp(argv[i], "--enable-mouse") == 0) args.enableMouse = true;
+        else if (strcmp(argv[i], "--follow-mode") == 0) {
+            i++;
+            if (i >= argc) {std::cout << "Missing follow mode value" << std::endl; return 1;}
+            else if (strcmp(argv[i], "count") == 0) args.followMode = FOLLOW_COUNT;
+            else if (strcmp(argv[i], "average") == 0) args.followMode = FOLLOW_AVEARGE;
+            else {std::cout << "Unknown follow mode value. Allowed values: 'count', 'average'" << std::endl; return 1;}
+        }
+        else if (strcmp(argv[i], "--border-mode") == 0) {
+            i++;
+            if (i >= argc) {std::cout << "Missing border mode value" << std::endl; return 1;}
+            else if (strcmp(argv[i], "bounce") == 0) args.borderMode = BORDER_BOUNCE;
+            else if (strcmp(argv[i], "through") == 0) args.borderMode = BORDER_THROUGH;
+            else if (strcmp(argv[i], "kill") == 0) args.borderMode = BORDER_KILL;
+            else {std::cout << "Unknown border mode value. Allowed values: 'bounce', 'through', 'kill'" << std::endl; return 1;}
+        }
+        else if (strcmp(argv[i], "--pause") == 0) args.pause = true;
+        else {
+            if (strcmp(argv[i], "--help") != 0)
+                std::cout << "Unknown flag: " << argv[i] << std::endl;
+
             std::cout << "Available flags:" << std::endl;
             std::cout << "   --sound-control" << std::endl;
             std::cout << "   --measure-performance" << std::endl;
             std::cout << "   --enable-mouse" << std::endl;
-            std::cout << "   --follow-average" << std::endl;
+            std::cout << "   --follow-mode (count, average)" << std::endl;
+            std::cout << "   --border-mode (bounce, through, kill)" << std::endl;
             std::cout << "   --pause" << std::endl;
             std::cout << "   --help" << std::endl;
 
@@ -122,7 +140,7 @@ int main(int argc, char *argv[]) {
         app.processData(args.enableMouse);
         if (!args.pause)
             for (int i=0; i<STEPS_PER_FRAME; i++) {
-                app.handleAnts(args.enableMouse, args.followAverage, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0, args.periodicWalls);
+                app.handleAnts(args.enableMouse, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0, args.followMode, args.borderMode);
                 if (followCycles == PHEROMONES_FOLLOW_STEP) followCycles = 1; else followCycles++;
             }
 

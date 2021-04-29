@@ -18,6 +18,11 @@ void Colony::renderAnts(float scale = (float)1.0) {
     for (auto& ant : ants) if (ant->alive) ant->render(scale);
 }
 
+void Colony::checkPopulation() {
+    population = 0;
+    for (auto& ant : ants) if (ant->alive) population++;
+}
+
 void Colony::reviveAnts(int N, int speed, int speedVariation) {
     if (population < ants.size()) {
         for (auto& ant : ants) {

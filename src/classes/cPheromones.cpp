@@ -49,7 +49,7 @@ void Pheromones::render(AntTypes type) {
     SDL_RenderCopy(renderer, pheromoneTexture, NULL, NULL);
 }
 
-void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength, bool periodic) {
+void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength, BorderMode borderMode) {
     int x = (int)ant->pos.x;
     int y = (int)ant->pos.y;
 
@@ -63,12 +63,17 @@ void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength, bool per
         for (int i = x-area; i <= x+area; i++) {
 
             int ii = i, jj = j;
-            if (periodic) {
-                if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
-                if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
-
-            } else if (i < 0 or i > width-1 or j < 0 or j > height-1 )
-                continue;
+            switch (borderMode) {
+                case BORDER_THROUGH:
+                    if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
+                    if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
+                    break;
+                
+                case BORDER_BOUNCE:
+                case BORDER_KILL:
+                    if (i < 0 or i > width-1 or j < 0 or j > height-1) continue;
+                    break;
+            }
 
             if (p[ii + jj*width] > 0) {
                 float dx = i - ant->pos.x;
@@ -101,7 +106,7 @@ void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength, bool per
     }
 }
 
-void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength, bool periodic) {
+void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength, BorderMode borderMode) {
     int x = (int)ant->pos.x;
     int y = (int)ant->pos.y;
 
@@ -116,12 +121,17 @@ void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength, b
         for (int i = x-area; i <= x+area; i++) {
 
             int ii = i, jj = j;
-            if (periodic) {
-                if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
-                if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
-
-            } else if (i < 0 or i > width-1 or j < 0 or j > height-1)
-                continue;
+            switch (borderMode) {
+                case BORDER_THROUGH:
+                    if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
+                    if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
+                    break;
+                
+                case BORDER_BOUNCE:
+                case BORDER_KILL:
+                    if (i < 0 or i > width-1 or j < 0 or j > height-1) continue;
+                    break;
+            }
 
             const float intensity = p[ii + jj*width];
             if (intensity > 0) {
