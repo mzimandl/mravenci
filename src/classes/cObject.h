@@ -5,18 +5,24 @@
 
 
 
+struct Vel {
+    float v;
+    float a;
+};
+
 class Object {
     private:
         Texture* texture;
 
     public:
         SDL_FPoint pos;
-        float v, a;
+        Vel vel;
 
         Object(Texture* t);
 
         void move(float dt);
-        void setValues(float ix, float iy, float iv, float ia);
+        void setPos(float x, float y);
+        void setVel(float v, float a);
         void render(float scale = 1);
         void setTexture(Texture* texture);
 };

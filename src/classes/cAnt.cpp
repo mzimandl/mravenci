@@ -11,7 +11,7 @@ Object(t), alive(false), moving(true), type(ANT_TYPE_EMPTY), follow(ANT_TYPE_EMP
 {}
 
 void Ant::randomTurn(float maxA) {
-    a += (static_cast<float>(rand())/static_cast<float>(RAND_MAX)) * maxA - maxA/2;
+    vel.a += (static_cast<float>(rand())/static_cast<float>(RAND_MAX)) * maxA - maxA/2;
 }
 
 void Ant::deflect(float x, float y, int dangerDist, int criticalDist) {
@@ -23,13 +23,13 @@ void Ant::deflect(float x, float y, int dangerDist, int criticalDist) {
             float idist = iqsqrt(dist2);
 
             // cursor position and ant velocity angle
-            float dA = calculateAngleI(dx, dy, idist) - a;
+            float dA = calculateAngleI(dx, dy, idist) - vel.a;
             if (dA > 180) dA -= 360;
             else if (dA < -180) dA += 360;
 
             float diff = (180 - abs(dA))*std::min((float)1.0, criticalDist*idist);
-            if (dA > 0) a -= diff;
-            else if (dA < 0) a += diff;
+            if (dA > 0) vel.a -= diff;
+            else if (dA < 0) vel.a += diff;
         }
     }
 }
@@ -44,12 +44,12 @@ void Ant::checkWallCollision(int width, int height, BorderMode borderMode) {
         case BORDER_BOUNCE:
             if (pos.x < 0 or pos.x > width-1) {
                 pos.x = pos.x < 0 ? -pos.x : 2*(width-1)-pos.x;
-                a = 180 - a;
+                vel.a = 180 - vel.a;
             }
 
             if (pos.y < 0 or pos.y > height-1) {
                 pos.y = pos.y < 0 ? -pos.y : 2*(height-1)-pos.y;
-                a = 360 - a;
+                vel.a = 360 - vel.a;
             }
             break;
         
@@ -92,7 +92,7 @@ void Ant::followPhCount(Pheromones* pheromones, int area, Uint8 maxA, float stre
                 if (dx != 0 or dy != 0) {
                     float dist2 = dx*dx + dy*dy;
                     if (dist2 < area2) {
-                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - a;
+                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - vel.a;
 
                         if (dA > 180) dA -= 360;
                         else if (dA < -180) dA += 360;
@@ -109,10 +109,10 @@ void Ant::followPhCount(Pheromones* pheromones, int area, Uint8 maxA, float stre
     }
 
     if (count1 or count2 or count3) {
-        if (count1 > count2 and count1 > count3) a -= strength*arc;
-        else if (count3 > count1 and count3 > count2) a += strength*arc;
-        else if (count1 == count2 < count3) a -= strength*arc/2;
-        else if (count1 < count2 == count3) a += strength*arc/2;
+        if (count1 > count2 and count1 > count3) vel.a -= strength*arc;
+        else if (count3 > count1 and count3 > count2) vel.a += strength*arc;
+        else if (count1 == count2 < count3) vel.a -= strength*arc/2;
+        else if (count1 < count2 == count3) vel.a += strength*arc/2;
     }
 }
 
@@ -151,7 +151,7 @@ void Ant::followPhAverage(Pheromones* pheromones, int area, Uint8 maxA, float st
                 if (dx != 0 or dy != 0) {
                     float dist2 = dx*dx + dy*dy;
                     if (dist2 < area2) {
-                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - a;
+                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - vel.a;
 
                         if (dA > 180) dA -= 360;
                         else if (dA < -180) dA += 360;
@@ -166,7 +166,7 @@ void Ant::followPhAverage(Pheromones* pheromones, int area, Uint8 maxA, float st
         }
     }
 
-    if (total > 0) a += strength * diffA / total;
+    if (total > 0) vel.a += strength * diffA / total;
 }
 
 void Ant::producePh(Pheromones* pheromones, float rate) {

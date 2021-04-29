@@ -27,7 +27,8 @@ void Colony::reviveAnts(int N, int speed, int speedVariation) {
     if (population < ants.size()) {
         for (auto& ant : ants) {
             if (!ant->alive) {
-                ant->setValues(pos.x, pos.y, rand() % speedVariation + speed, rand() % 360);
+                ant->setPos(pos.x, pos.y);
+                ant->setVel(rand() % speedVariation + speed, rand() % 360);
                 ant->alive = true;
                 population++;
                 N--;

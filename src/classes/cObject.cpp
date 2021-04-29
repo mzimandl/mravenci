@@ -20,23 +20,26 @@ bool inRange(Object* obj1, Object* obj2, int d) {
 }
 
 Object::Object(Texture* t) :
-texture(t), a(0), v(0)
-{}
+texture(t)
+{ vel.v = 0; vel.a = 0; }
 
 void Object::move(float dt) {
-    pos.x += v*cos(a*DEG_TO_RAD)*dt;
-    pos.y += v*sin(a*DEG_TO_RAD)*dt;
+    pos.x += vel.v*cos(vel.a*DEG_TO_RAD)*dt;
+    pos.y += vel.v*sin(vel.a*DEG_TO_RAD)*dt;
 }
 
-void Object::setValues(float ix, float iy, float iv, float ia) {
-    pos.x = ix;
-    pos.y = iy;
-    v = iv;
-    a = ia;
+void Object::setPos(float x, float y) {
+    pos.x = x;
+    pos.y = y;
+}
+
+void Object::setVel(float v, float a) {
+    vel.v = v;
+    vel.a = a;
 }
 
 void Object::render(float scale) {
-    texture->render((int)round(pos.x), (int)round(pos.y), a, scale);
+    texture->render((int)round(pos.x), (int)round(pos.y), vel.a, scale);
 }
 
 void Object::setTexture(Texture* newTexture) {
