@@ -1,41 +1,40 @@
 #include <cstdlib>
 #include <SDL2/SDL.h>
 
-#include "cAnt.h"
 #include "../math.h"
 
 #include "cPheromones.h"
 
 
 
-Pheromones::Pheromones(SDL_Renderer* r, int w, int h) :
+Pheromones::Pheromones(SDL_Renderer* r, int w, int h, int typesCount) :
 renderer(r), width(w), height(h)
 {
 
-    pheromones.resize(ANT_TYPES_COUNT);
-    for (auto& p : pheromones) p = new float[width * height];
+    value.resize(typesCount);
+    for (auto& p : value) p = new float[width * height];
 
     Uint8* pixels; int pitch;
 
-    pheromoneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
-    SDL_LockTexture(pheromoneTexture, NULL, (void**)&pixels, &pitch);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch);
     for (int xy = 0; xy < pitch*height; xy++) { pixels[xy] = 255; }
-    SDL_UnlockTexture(pheromoneTexture);
+    SDL_UnlockTexture(texture);
 }
 
 Pheromones::~Pheromones() {
-    SDL_DestroyTexture(pheromoneTexture);
-    pheromoneTexture = NULL;
+    SDL_DestroyTexture(texture);
+    texture = NULL;
     renderer = NULL;
 
-    for (auto& p : pheromones) delete[] p;
+    for (auto& p : value) delete[] p;
 }
 
-void Pheromones::render(AntTypes type) {
+void Pheromones::render(int type) {
     Uint8* pixels; int pitch;
-    float* p = pheromones[type];
+    float* p = value[type];
 
-    SDL_LockTexture(pheromoneTexture, NULL, (void**)&pixels, &pitch);
+    SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             if (p[x + y*width] > 0) {
@@ -45,135 +44,16 @@ void Pheromones::render(AntTypes type) {
             }
         }
     }
-    SDL_UnlockTexture(pheromoneTexture);
-    SDL_RenderCopy(renderer, pheromoneTexture, NULL, NULL);
-}
-
-void Pheromones::follow(Ant* ant, int area, Uint8 maxA, float strength, BorderMode borderMode) {
-    int x = (int)ant->pos.x;
-    int y = (int)ant->pos.y;
-
-    const int area2 = area*area;
-    const float arc = 2*(float)maxA/3;
-    int count1 = 0, count2 = 0, count3 = 0;
-
-    float* p = pheromones[ant->follow];
-
-    for (int j = y-area; j <= y+area; j++) {
-        for (int i = x-area; i <= x+area; i++) {
-
-            int ii = i, jj = j;
-            switch (borderMode) {
-                case BORDER_THROUGH:
-                    if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
-                    if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
-                    break;
-                
-                case BORDER_BOUNCE:
-                case BORDER_KILL:
-                    if (i < 0 or i > width-1 or j < 0 or j > height-1) continue;
-                    break;
-            }
-
-            if (p[ii + jj*width] > 0) {
-                float dx = i - ant->pos.x;
-                float dy = j - ant->pos.y;
-
-                if (dx != 0 or dy != 0) {
-                    float dist2 = dx*dx + dy*dy;
-                    if (dist2 < area2) {
-                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - ant->a;
-
-                        if (dA > 180) dA -= 360;
-                        else if (dA < -180) dA += 360;
-
-                        if (abs(dA) < maxA) {
-                            if (dA < -arc/2) count1++;
-                            else if (dA > arc/2) count3++;
-                            else count2++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (count1 or count2 or count3) {
-        if (count1 > count2 and count1 > count3) ant->a -= strength*arc;
-        else if (count3 > count1 and count3 > count2) ant->a += strength*arc;
-        else if (count1 == count2 < count3) ant->a -= strength*arc/2;
-        else if (count1 < count2 == count3) ant->a += strength*arc/2;
-    }
-}
-
-void Pheromones::followAverage(Ant* ant, int area, Uint8 maxA, float strength, BorderMode borderMode) {
-    int x = (int)ant->pos.x;
-    int y = (int)ant->pos.y;
-
-    const int area2 = area*area;
-
-    float diffA = 0;
-    float total = 0;
-
-    float* p = pheromones[ant->follow];
-
-   for (int j = y-area; j <= y+area; j++) {
-        for (int i = x-area; i <= x+area; i++) {
-
-            int ii = i, jj = j;
-            switch (borderMode) {
-                case BORDER_THROUGH:
-                    if (i < 0) ii += width-1; else if (i > width-1) ii -= width-1;
-                    if (j < 0) jj += height-1; else if (j > height-1) jj -= height-1;
-                    break;
-                
-                case BORDER_BOUNCE:
-                case BORDER_KILL:
-                    if (i < 0 or i > width-1 or j < 0 or j > height-1) continue;
-                    break;
-            }
-
-            const float intensity = p[ii + jj*width];
-            if (intensity > 0) {
-                float dx = i - ant->pos.x;
-                float dy = j - ant->pos.y;
-
-                if (dx != 0 or dy != 0) {
-                    float dist2 = dx*dx + dy*dy;
-                    if (dist2 < area2) {
-                        float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - ant->a;
-
-                        if (dA > 180) dA -= 360;
-                        else if (dA < -180) dA += 360;
-
-                        if (abs(dA) < maxA) {
-                            diffA += dA*intensity;
-                            total += intensity;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (total > 0) ant->a += strength * diffA / total;
+    SDL_UnlockTexture(texture);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
 }
 
 void Pheromones::decay(float rate) {
-    for (auto& type : pheromones)
+    for (auto& type : value)
         for (int y = 0; y < width*height; y+=width) {
             for (int x = 0; x < width; x++) {
                 float& p = type[x + y];
                 if (p > 0) p = std::max(p - rate, (float)0);
             }
         }
-}
-
-void Pheromones::produce(Ant* ant, float rate) {
-    int x = (int)round(ant->pos.x);
-    int y = (int)round(ant->pos.y);
-    if (x >= 0 and x < width and y >= 0 and y < height) {
-        float& p = pheromones[ant->type][x + y*width];
-        p = std::min(p + rate, (float)1);
-    }
 }

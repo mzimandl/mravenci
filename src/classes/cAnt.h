@@ -1,5 +1,6 @@
 #pragma once
 #include "cTexture.h"
+#include "cPheromones.h"
 #include "cObject.h"
 
 
@@ -30,4 +31,7 @@ class Ant: public Object {
         void randomTurn(float maxA);
         void deflect(float x, float y, int dangerDist, int criticalDist);
         void checkWallCollision(int width, int height, BorderMode borderMode);
+        void followPhCount(Pheromones* pheromones, int area, Uint8 maxA, float strength, BorderMode borderMode);
+        void followPhAverage(Pheromones* pheromones, int area, Uint8 maxA, float strength, BorderMode borderMode);
+        void producePh(Pheromones* pheromones, float rate);
 };

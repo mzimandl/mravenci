@@ -121,7 +121,7 @@ void SDL_App::initObjects() {
     colony = new Colony(textures[TEXTURE_COLONY], ANT_MAX_POPULATION);
     colony->setValues(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 0, 45);
     for (auto& ant : colony->ants) ant = new Ant(textures[TEXTURE_ANT]);
-    pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+    pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, ANT_TYPES_COUNT);
 }
 
 void SDL_App::render() {
@@ -157,24 +157,23 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
             ant->moving = rand() % 100 < ANT_CHANCE_TO_MOVE;
             if (ant->alive and ant->moving) {
                 if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
-
-                switch (followMode) {
+                if (follow) switch (followMode) {
                     case FOLLOW_COUNT:
-                        pheromones->follow(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
+                        ant->followPhCount(pheromones, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
                         break;
 
                     case FOLLOW_AVEARGE:
-                        pheromones->followAverage(ant, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
+                        ant->followPhAverage(pheromones, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
                         break; 
                 }
 
                 ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->a);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
-                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, borderMode); // ensures ants are inside screen area
+                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, borderMode);
             }
         }
     }
 
-    for (auto& ant : colony->ants) if (ant->alive and ant->moving) pheromones->produce(ant, PHEROMONE_PRODUCTION_RATE);
+    for (auto& ant : colony->ants) if (ant->alive and ant->moving) ant->producePh(pheromones, PHEROMONE_PRODUCTION_RATE);
 }
