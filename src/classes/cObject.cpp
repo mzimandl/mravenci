@@ -9,7 +9,7 @@
 
 
 
-bool inRange(Object* obj1, Object* obj2, int d) {
+bool inRange(StaticObject* obj1, StaticObject* obj2, int d) {
     int dx = obj1->pos.x - obj2->pos.x;
     int dy = obj1->pos.y - obj2->pos.y;
 
@@ -19,29 +19,36 @@ bool inRange(Object* obj1, Object* obj2, int d) {
     return false;
 }
 
-Object::Object(Texture* t) :
-texture(t)
-{ vel.v = 0; vel.a = 0; }
+StaticObject::StaticObject(Texture* t) :
+texture(t), angle(0)
+{}
 
-void Object::move(float dt) {
-    pos.x += vel.v*cos(vel.a*DEG_TO_RAD)*dt;
-    pos.y += vel.v*sin(vel.a*DEG_TO_RAD)*dt;
-}
-
-void Object::setPos(float x, float y) {
+void StaticObject::setPos(float x, float y) {
     pos.x = x;
     pos.y = y;
 }
 
-void Object::setVel(float v, float a) {
-    vel.v = v;
-    vel.a = a;
+void StaticObject::setAngle(float a) {
+    angle = a;
 }
 
-void Object::render(float scale) {
-    texture->render((int)round(pos.x), (int)round(pos.y), vel.a, scale);
+void StaticObject::render(float scale) {
+    texture->render((int)round(pos.x), (int)round(pos.y), angle, scale);
 }
 
-void Object::setTexture(Texture* newTexture) {
+void StaticObject::setTexture(Texture* newTexture) {
     texture = newTexture;
+}
+
+Object::Object(Texture* t) :
+StaticObject(t), speed(0)
+{}
+
+void Object::move(float dt) {
+    pos.x += speed*cos(angle*DEG_TO_RAD)*dt;
+    pos.y += speed*sin(angle*DEG_TO_RAD)*dt;
+}
+
+void Object::setSpeed(float s) {
+    speed = s;
 }

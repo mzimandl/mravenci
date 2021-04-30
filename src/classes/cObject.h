@@ -5,26 +5,30 @@
 
 
 
-struct Vel {
-    float v;
-    float a;
-};
-
-class Object {
+class StaticObject {
     private:
         Texture* texture;
 
     public:
         SDL_FPoint pos;
-        Vel vel;
+        float angle;
 
-        Object(Texture* t);
+        StaticObject(Texture* t);
 
-        void move(float dt);
         void setPos(float x, float y);
-        void setVel(float v, float a);
+        void setAngle(float a);
         void render(float scale = 1);
         void setTexture(Texture* texture);
 };
 
-bool inRange(Object* obj1, Object* obj2, int d);
+class Object: public StaticObject {
+    public:
+        float speed;
+
+        Object(Texture* t);
+
+        void move(float dt);
+        void setSpeed(float s);
+};
+
+bool inRange(StaticObject* obj1, StaticObject* obj2, int d);

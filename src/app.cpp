@@ -168,7 +168,7 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
                 }
 
                 ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
-                normalizeAngle(ant->vel.a);
+                normalizeAngle(ant->angle);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
                 ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, borderMode);
             }

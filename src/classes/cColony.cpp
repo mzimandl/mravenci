@@ -4,7 +4,7 @@
 
 
 Colony::Colony(Texture* t, int maxPopulation) :
-Object(t), population(0)
+StaticObject(t), population(0)
 {
     ants.resize(maxPopulation);
 }
@@ -28,7 +28,8 @@ void Colony::reviveAnts(int N, int speed, int speedVariation) {
         for (auto& ant : ants) {
             if (!ant->alive) {
                 ant->setPos(pos.x, pos.y);
-                ant->setVel(rand() % speedVariation + speed, rand() % 360);
+                ant->setAngle(rand() % 360);
+                ant->setSpeed(rand() % speedVariation + speed);
                 ant->alive = true;
                 population++;
                 N--;
