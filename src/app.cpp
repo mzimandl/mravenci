@@ -118,9 +118,8 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    colony = new Colony(textures[TEXTURE_COLONY], ANT_MAX_POPULATION);
+    colony = new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], ANT_MAX_POPULATION);
     colony->setPos(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT);
-    for (auto& ant : colony->ants) ant = new Ant(textures[TEXTURE_ANT]);
     pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, ANT_TYPES_COUNT);
 }
 
@@ -175,5 +174,5 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
         }
     }
 
-    for (auto& ant : colony->ants) if (ant->alive and ant->moving) ant->producePh(pheromones, PHEROMONE_PRODUCTION_RATE);
+    colony->producePh(pheromones, PHEROMONE_PRODUCTION_RATE);
 }

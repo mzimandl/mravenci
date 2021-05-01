@@ -1,12 +1,14 @@
 #include "cTexture.h"
+#include "cAnt.h"
 #include "cColony.h"
 
 
 
-Colony::Colony(Texture* t, int maxPopulation) :
-StaticObject(t), population(0)
+Colony::Colony(Texture* colonyTexture, Texture* antTexture, int maxPopulation) :
+StaticObject(colonyTexture), population(0)
 {
     ants.resize(maxPopulation);
+    for (auto& ant : ants) ant = new Ant(antTexture);
 }
 
 Colony::~Colony() {
@@ -40,4 +42,8 @@ void Colony::reviveAnts(int N, int speed, int speedVariation) {
             }
         }
     }
+}
+
+void Colony::producePh(Pheromones* pheromones, float rate) {
+    for (auto& ant : ants) if (ant->alive and ant->moving) ant->producePh(pheromones, rate);
 }

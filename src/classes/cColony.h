@@ -12,7 +12,7 @@ class Colony: public StaticObject {
         int population;
 
     public:
-        Colony(Texture* t, int maxPopulation);
+        Colony(Texture* colonyTexture, Texture* antTexture, int maxPopulation);
         ~Colony();
 
         std::vector<Ant *> ants;
@@ -20,4 +20,5 @@ class Colony: public StaticObject {
         void renderAnts(float scale);
         void checkPopulation();
         void reviveAnts(int N, int speed, int speedVariation);
+        void producePh(Pheromones* pheromones, float rate);
 };
