@@ -120,14 +120,14 @@ bool SDL_App::loadMedia() {
 }
 
 void SDL_App::initObjects() {
-    colony = new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], ANT_MAX_POPULATION);
+    colony = new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], settings.ant.max_population);
     colony->setPos(rand() % settings.screen_width, rand() % settings.screen_height);
-    pheromones = new Pheromones(renderer, settings.screen_width, settings.screen_height, PHEROMONE_SCREEN_RESOLUTION, ANT_TYPES_COUNT);
+    pheromones = new Pheromones(renderer, settings.screen_width, settings.screen_height, settings.pheromones.screen_resolution, ANT_TYPES_COUNT);
 }
 
 void SDL_App::render() {
     pheromones->render(ANT_TYPE_EMPTY);
-    colony->renderAnts(ANT_SCALE_RENDER);
+    colony->renderAnts(settings.ant.render_scale);
     colony->render();
     SDL_RenderPresent(renderer);
 }
@@ -141,13 +141,13 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
     int soundCorrection = 0;
     if (soundControl != NULL) {
         soundCorrection = std::max(0, soundControl->avgLevelVariation());
-        follow = soundCorrection < SOUND_CONTROL_DISTURB_LEVEL and follow;
+        follow = soundCorrection < settings.sound_control_disturb_level and follow;
     }
 
-    pheromones->decay(PHEROMONE_DECAY_RATE);
+    pheromones->decay(settings.pheromones.decay_rate);
     
     if (borderMode == BORDER_KILL) colony->checkPopulation();
-    colony->reviveAnts(ANT_REVIVE_RATE, ANT_SPEED, ANT_SPEED_VARIATION);
+    colony->reviveAnts(settings.ant.revive_rate, settings.ant.speed, settings.ant.speed_variation);
 
     std::vector<Ant *>::iterator i;
     #pragma omp parallel default(shared) private(i)
@@ -155,26 +155,26 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
         #pragma omp for schedule(dynamic) nowait
         for (i = colony->ants.begin(); i != colony->ants.end(); i++) {
             Ant* ant = *i;
-            ant->moving = rand() % 100 < ANT_CHANCE_TO_MOVE;
+            ant->moving = rand() % 100 < settings.ant.chance_to_move;
             if (ant->alive and ant->moving) {
-                if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, CURSOR_DANGER, CURSOR_CRITICAL);
+                if (enableMouse) ant->deflect((float)cursorPos.x, (float)cursorPos.y, settings.cursor_danger_distance, settings.cursor_critical_distance);
                 if (follow) switch (followMode) {
                     case FOLLOW_COUNT:
-                        ant->followPhCount(pheromones, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
+                        ant->followPhCount(pheromones, settings.pheromones.follow_distance, settings.pheromones.follow_angle, settings.pheromones.follow_strength, borderMode);
                         break;
 
                     case FOLLOW_AVEARGE:
-                        ant->followPhAverage(pheromones, PHEROMONES_DISTANCE, PHEROMONES_ANGLE, PHEROMONES_FOLLOW_STRENGTH, borderMode);
+                        ant->followPhAverage(pheromones, settings.pheromones.follow_distance, settings.pheromones.follow_angle, settings.pheromones.follow_strength, borderMode);
                         break; 
                 }
 
-                ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
+                ant->randomTurn(settings.ant.max_random_turn + soundCorrection);
                 normalizeAngle(ant->angle);
-                ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
+                ant->move(settings.time_step + 0.1*(float)soundCorrection/(float)UINT8_MAX);
                 ant->checkWallCollision(settings.screen_width, settings.screen_height, borderMode);
             }
         }
     }
 
-    colony->producePh(pheromones, PHEROMONE_PRODUCTION_RATE);
+    colony->producePh(pheromones, settings.pheromones.production_rate);
 }

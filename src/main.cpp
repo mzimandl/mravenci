@@ -152,9 +152,9 @@ int main(int argc, char *argv[]) {
 
         app.processData(args.enableMouse);
         if (!args.pause)
-            for (int i=0; i<STEPS_PER_FRAME; i++) {
-                app.handleAnts(args.enableMouse, follow and followCycles % PHEROMONES_FOLLOW_STEP == 0, args.followMode, args.borderMode);
-                if (followCycles == PHEROMONES_FOLLOW_STEP) followCycles = 1; else followCycles++;
+            for (int i=0; i<settings.steps_per_frame; i++) {
+                app.handleAnts(args.enableMouse, follow and followCycles % settings.pheromones.follow_step == 0, args.followMode, args.borderMode);
+                if (followCycles == settings.pheromones.follow_step) followCycles = 1; else followCycles++;
             }
 
         if (perfTimer) {

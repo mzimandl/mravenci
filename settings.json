@@ -1,6 +1,32 @@
 {
     "screen_width": 1680,
     "screen_height": 1010,
-    "fps": 30
+    "fps": 30,
+    "time_step": 0.1,
+    "steps_per_frame": 1,
 
+    "cursor_danger_distance": 500,
+    "cursor_critical_distance": 2,
+
+    "sound_control_disturb_level": 10,
+
+    "ant": {
+        "render_scale": 0.25,
+        "max_population": 1000,
+        "speed": 25,
+        "speed_variation": 5,
+        "max_random_turn": 30,
+        "chance_to_move": 80,
+        "revive_rate": 30
+    },
+
+    "pheromones": {
+        "screen_resolution": 1,
+        "production_rate": 0.3,
+        "decay_rate": 0.001,
+        "follow_distance": 15,
+        "follow_angle": 25,
+        "follow_strength": 0.8,
+        "follow_step": 1
+    }
 }
