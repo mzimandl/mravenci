@@ -26,6 +26,8 @@ const std::string TEXTURE_PATHS[TEXTURE_COUNT] = {
 
 class SDL_App {
     private:
+        SettingsStruct &settings;
+
         SDL_Window *window;
         SDL_Renderer *renderer;
         SDL_Point cursorPos;
@@ -37,7 +39,7 @@ class SDL_App {
         Pheromones *pheromones;
 
     public:
-        SDL_App();
+        SDL_App(SettingsStruct &s);
         ~SDL_App();
 
         bool initSDL(bool enableSoundControl);
@@ -48,8 +50,8 @@ class SDL_App {
         void render();
 };
 
-SDL_App::SDL_App() :
-window(NULL), renderer(NULL), soundControl(NULL), colony(NULL), pheromones(NULL)
+SDL_App::SDL_App(SettingsStruct &s) :
+window(NULL), renderer(NULL), soundControl(NULL), colony(NULL), pheromones(NULL), settings(s)
 {}
 
 SDL_App::~SDL_App() {
@@ -82,7 +84,7 @@ bool SDL_App::initSDL(bool enableSoundControl) {
     }
 
     //Create window
-    window = SDL_CreateWindow("Mravenci", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Mravenci", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, settings.screen_width, settings.screen_height, SDL_WINDOW_SHOWN);
     if (window == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window: %s", SDL_GetError());
         return false;
@@ -119,8 +121,8 @@ bool SDL_App::loadMedia() {
 
 void SDL_App::initObjects() {
     colony = new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], ANT_MAX_POPULATION);
-    colony->setPos(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT);
-    pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, PHEROMONE_SCREEN_RESOLUTION, ANT_TYPES_COUNT);
+    colony->setPos(rand() % settings.screen_width, rand() % settings.screen_height);
+    pheromones = new Pheromones(renderer, settings.screen_width, settings.screen_height, PHEROMONE_SCREEN_RESOLUTION, ANT_TYPES_COUNT);
 }
 
 void SDL_App::render() {
@@ -169,7 +171,7 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
                 ant->randomTurn(ANT_RANDOM_TURN + soundCorrection);
                 normalizeAngle(ant->angle);
                 ant->move(STEP_SIZE + 0.1*(float)soundCorrection/(float)UINT8_MAX);
-                ant->checkWallCollision(SCREEN_WIDTH, SCREEN_HEIGHT, borderMode);
+                ant->checkWallCollision(settings.screen_width, settings.screen_height, borderMode);
             }
         }
     }

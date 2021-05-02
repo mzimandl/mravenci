@@ -1,8 +1,10 @@
 #include <iostream>
+#include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 #include "app.cpp"
+#include "settings.hpp"
 #include "classes/cAnt.hpp"
 #include "classes/cTimer.hpp"
 
@@ -13,6 +15,7 @@ struct Args {
     bool enableMouse;
     bool pause;
     bool soundControl;
+    std::string settingsPath;
     FollowMode followMode;
     BorderMode borderMode;
 };
@@ -25,9 +28,15 @@ int main(int argc, char *argv[]) {
     args.soundControl = false;
     args.followMode = FOLLOW_COUNT;
     args.borderMode = BORDER_BOUNCE;
+    args.settingsPath = "settings.json";
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--sound-control") == 0) args.soundControl = true;
+        if (strcmp(argv[i], "--settings") == 0) {
+            i++;
+            if (i >= argc) {std::cout << "Missing settings path" << std::endl; return 1;}
+            args.settingsPath = argv[i];
+        }
+        else if (strcmp(argv[i], "--sound-control") == 0) args.soundControl = true;
         else if (strcmp(argv[i], "--measure-performance") == 0) args.measurePerformance = true;
         else if (strcmp(argv[i], "--enable-mouse") == 0) args.enableMouse = true;
         else if (strcmp(argv[i], "--follow-mode") == 0) {
@@ -51,6 +60,7 @@ int main(int argc, char *argv[]) {
                 std::cout << "Unknown flag: " << argv[i] << std::endl;
 
             std::cout << "Available flags:" << std::endl;
+            std::cout << "   --settings [PATH]" << std::endl;
             std::cout << "   --sound-control" << std::endl;
             std::cout << "   --measure-performance" << std::endl;
             std::cout << "   --enable-mouse" << std::endl;
@@ -63,7 +73,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    SDL_App app;
+    SettingsStruct settings;
+    settings.load(args.settingsPath);
+
+    SDL_App app(settings);
 
     if(!app.initSDL(args.soundControl)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialization failed");
@@ -157,8 +170,8 @@ int main(int argc, char *argv[]) {
         }
 
         int frameTicks = capTimer.getTicks();
-        if (frameTicks < SCREEN_TICKS_PER_FRAME)
-            SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
+        if (frameTicks < settings._screen_ticks_per_frame)
+            SDL_Delay(settings._screen_ticks_per_frame - frameTicks);
     }
 
     if (perfTimer) delete perfTimer;

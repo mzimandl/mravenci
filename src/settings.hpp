@@ -1,13 +1,19 @@
 #pragma once
+#include <string>
+
+
+
+struct SettingsStruct {
+    int screen_width;
+    int screen_height;
+    int fps;
+    int _screen_ticks_per_frame;
+
+    void load(const std::string &filename);
+};
 
 const float STEP_SIZE = 0.1;
 const int STEPS_PER_FRAME = 1;
-
-//Screen dimension constants
-const int SCREEN_WIDTH = 1680;
-const int SCREEN_HEIGHT = 1010;
-const int SCREEN_FPS = 30;
-const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 //Cursor deflection
 const int CURSOR_DANGER = 500;
