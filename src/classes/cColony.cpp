@@ -1,6 +1,6 @@
-#include "cTexture.h"
-#include "cAnt.h"
-#include "cColony.h"
+#include "cTexture.hpp"
+#include "cAnt.hpp"
+#include "cColony.hpp"
 
 
 

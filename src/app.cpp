@@ -3,13 +3,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#include "settings.h"
-#include "math.h"
-#include "classes/cTexture.h"
-#include "classes/cAnt.h"
-#include "classes/cColony.h"
-#include "classes/cPheromones.h"
-#include "classes/cSoundControl.h"
+#include "settings.hpp"
+#include "math.hpp"
+#include "classes/cTexture.hpp"
+#include "classes/cAnt.hpp"
+#include "classes/cColony.hpp"
+#include "classes/cPheromones.hpp"
+#include "classes/cSoundControl.hpp"
 
 
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-#include "cTexture.h"
+#include "cTexture.hpp"
 
 
 

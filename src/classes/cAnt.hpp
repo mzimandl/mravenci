@@ -1,7 +1,7 @@
 #pragma once
-#include "cTexture.h"
-#include "cPheromones.h"
-#include "cObject.h"
+#include "cTexture.hpp"
+#include "cPheromones.hpp"
+#include "cObject.hpp"
 
 
 

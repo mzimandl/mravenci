@@ -2,8 +2,8 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "cObject.h"
-#include "cTexture.h"
+#include "cObject.hpp"
+#include "cTexture.hpp"
 
 #define DEG_TO_RAD M_PI/180
 

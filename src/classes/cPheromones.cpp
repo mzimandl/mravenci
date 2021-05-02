@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <SDL2/SDL.h>
 
-#include "../math.h"
+#include "../math.hpp"
 
-#include "cPheromones.h"
+#include "cPheromones.hpp"
 
 
 

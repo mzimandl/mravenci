@@ -3,8 +3,8 @@
 #include <SDL2/SDL_image.h>
 
 #include "app.cpp"
-#include "classes/cAnt.h"
-#include "classes/cTimer.h"
+#include "classes/cAnt.hpp"
+#include "classes/cTimer.hpp"
 
 
 

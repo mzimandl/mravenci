@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 
-#include "cObject.h"
-#include "cAnt.h"
-#include "cTexture.h"
+#include "cObject.hpp"
+#include "cAnt.hpp"
+#include "cTexture.hpp"
 
 
 

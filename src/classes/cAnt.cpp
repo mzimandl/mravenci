@@ -1,8 +1,8 @@
-#include "../math.h"
+#include "../math.hpp"
 
-#include "cTexture.h"
-#include "cPheromones.h"
-#include "cAnt.h"
+#include "cTexture.hpp"
+#include "cPheromones.hpp"
+#include "cAnt.hpp"
 
 
 
