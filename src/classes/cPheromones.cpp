@@ -7,10 +7,9 @@
 
 
 
-Pheromones::Pheromones(SDL_Renderer* r, int w, int h, int typesCount) :
-renderer(r), width(w), height(h)
+Pheromones::Pheromones(SDL_Renderer* r, int screenW, int screenH, float s, int typesCount) :
+renderer(r), width((int)(screenW*s)), height((int)(screenH*s)), size(s)
 {
-
     value.resize(typesCount);
     for (auto& p : value) p = new float[width * height];
 

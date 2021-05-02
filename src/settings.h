@@ -22,6 +22,7 @@ const int ANT_RANDOM_TURN = 30; // max angle of ants random turn
 const char ANT_CHANCE_TO_MOVE = 80; // 0-100 percent
 const int ANT_REVIVE_RATE = 30;
 
+const float PHEROMONE_SCREEN_RESOLUTION = 1;
 const float PHEROMONE_PRODUCTION_RATE = 0.3; // pheromone amount ant produces every step
 const float PHEROMONE_DECAY_RATE = 0.001; // amount of decay of pheromones every step
 const int PHEROMONES_DISTANCE = 15; // distance to which ant smells pheromones

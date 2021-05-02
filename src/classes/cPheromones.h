@@ -11,9 +11,10 @@ class Pheromones {
 
     public:
         int width, height;
+        float size;
         std::vector<float* > value;
 
-        Pheromones(SDL_Renderer* renderer, int width, int height, int typesCount);
+        Pheromones(SDL_Renderer* r, int screenW, int screenH, float s, int typesCount);
         ~Pheromones();
 
         void render(int type);

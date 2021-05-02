@@ -120,7 +120,7 @@ bool SDL_App::loadMedia() {
 void SDL_App::initObjects() {
     colony = new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], ANT_MAX_POPULATION);
     colony->setPos(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT);
-    pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, ANT_TYPES_COUNT);
+    pheromones = new Pheromones(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, PHEROMONE_SCREEN_RESOLUTION, ANT_TYPES_COUNT);
 }
 
 void SDL_App::render() {

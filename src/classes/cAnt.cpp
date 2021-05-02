@@ -60,8 +60,9 @@ void Ant::checkWallCollision(int width, int height, BorderMode borderMode) {
 }
 
 void Ant::followPhCount(Pheromones* pheromones, int area, Uint8 maxA, float strength, BorderMode borderMode) {
-    int x = (int)round(pos.x);
-    int y = (int)round(pos.y);
+    int x = (int)(pos.x*pheromones->size);
+    int y = (int)(pos.y*pheromones->size);
+    area = (int)round(area*pheromones->size);
 
     const int area2 = area*area;
     const float arc = 2*(float)maxA/3;
@@ -86,10 +87,9 @@ void Ant::followPhCount(Pheromones* pheromones, int area, Uint8 maxA, float stre
             }
 
             if (p[ii + jj*pheromones->width] > 0) {
-                float dx = i - pos.x;
-                float dy = j - pos.y;
-
-                if (dx != 0 or dy != 0) {
+                if (x != i or y != j) {
+                    float dx = i - pos.x*pheromones->size;
+                    float dy = j - pos.y*pheromones->size;
                     float dist2 = dx*dx + dy*dy;
                     if (dist2 < area2) {
                         float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - angle;
@@ -117,8 +117,9 @@ void Ant::followPhCount(Pheromones* pheromones, int area, Uint8 maxA, float stre
 }
 
 void Ant::followPhAverage(Pheromones* pheromones, int area, Uint8 maxA, float strength, BorderMode borderMode) {
-    int x = (int)round(pos.x);
-    int y = (int)round(pos.y);
+    int x = (int)(pos.x*pheromones->size);
+    int y = (int)(pos.y*pheromones->size);
+    area = (int)round(area*pheromones->size);
 
     const int area2 = area*area;
 
@@ -145,10 +146,9 @@ void Ant::followPhAverage(Pheromones* pheromones, int area, Uint8 maxA, float st
 
             const float intensity = p[ii + jj*pheromones->width];
             if (intensity > 0) {
-                float dx = i - pos.x;
-                float dy = j - pos.y;
-
-                if (dx != 0 or dy != 0) {
+                if (x != i or y != j) {
+                    float dx = i - pos.x*pheromones->size;
+                    float dy = j - pos.y*pheromones->size;
                     float dist2 = dx*dx + dy*dy;
                     if (dist2 < area2) {
                         float dA = calculateAngleI(dx, dy, iqsqrt(dist2)) - angle;
@@ -170,8 +170,8 @@ void Ant::followPhAverage(Pheromones* pheromones, int area, Uint8 maxA, float st
 }
 
 void Ant::producePh(Pheromones* pheromones, float rate) {
-    int x = (int)round(pos.x);
-    int y = (int)round(pos.y);
+    int x = (int)(pos.x*pheromones->size);
+    int y = (int)(pos.y*pheromones->size);
     if (x >= 0 and x < pheromones->width and y >= 0 and y < pheromones->height) {
         float& p = pheromones->value[type][x + y*pheromones->width];
         p = std::min(p + rate, (float)1);
