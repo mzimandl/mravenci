@@ -32,6 +32,7 @@ class SoundControl {
         ~SoundControl();
 
         void checkAudio();
-        int avgLevelVariation();
+        int avgVolumeChange();
+        int lastVolume();
 
 };

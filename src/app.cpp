@@ -138,10 +138,16 @@ void SDL_App::processData(bool enableMouse) {
 }
 
 void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode) {
-    int soundCorrection = 0;
+    float timeStep = settings.time_step;
+    float randomTurn = settings.ant.max_random_turn;
+
     if (soundControl != NULL) {
-        soundCorrection = std::max(0, soundControl->avgLevelVariation());
-        follow = soundCorrection < settings.sound_control_disturb_level and follow;
+        int volumeIncrease = std::max(0, soundControl->avgVolumeChange());
+        follow = volumeIncrease < settings.sound_control_disturb_level and follow;
+        timeStep += 0.1*(float)volumeIncrease/(float)UINT8_MAX;
+        randomTurn += volumeIncrease;
+
+        //timeStep = 0.005*soundControl->lastVolume();
     }
 
     pheromones->decay(settings.pheromones.decay_rate);
@@ -168,9 +174,9 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
                         break; 
                 }
 
-                ant->randomTurn(settings.ant.max_random_turn + soundCorrection);
+                ant->randomTurn(randomTurn);
                 normalizeAngle(ant->angle);
-                ant->move(settings.time_step + 0.1*(float)soundCorrection/(float)UINT8_MAX);
+                ant->move(timeStep);
                 ant->checkWallCollision(settings.screen_width, settings.screen_height, borderMode);
             }
         }

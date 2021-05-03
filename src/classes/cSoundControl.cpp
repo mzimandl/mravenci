@@ -66,6 +66,10 @@ void SoundControl::checkAudio() {
     }
 }
 
-int SoundControl::avgLevelVariation() { 
+int SoundControl::avgVolumeChange() { 
     return lastLevel-averageLevel;
+}
+
+int SoundControl::lastVolume() { 
+    return lastLevel;
 }
