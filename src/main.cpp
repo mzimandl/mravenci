@@ -16,6 +16,7 @@ struct Args {
     bool pause;
     bool soundControl;
     std::string settingsPath;
+    std::string scenarioName;
     FollowMode followMode;
     BorderMode borderMode;
 };
@@ -29,12 +30,18 @@ int main(int argc, char *argv[]) {
     args.followMode = FOLLOW_COUNT;
     args.borderMode = BORDER_BOUNCE;
     args.settingsPath = "settings.json";
+    args.scenarioName = "default";
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--settings") == 0) {
             i++;
             if (i >= argc) {std::cout << "Missing settings path" << std::endl; return 1;}
             args.settingsPath = argv[i];
+        }
+        else if (strcmp(argv[i], "--scenario") == 0) {
+            i++;
+            if (i >= argc) {std::cout << "Missing scenario name" << std::endl; return 1;}
+            args.scenarioName = argv[i];
         }
         else if (strcmp(argv[i], "--sound-control") == 0) args.soundControl = true;
         else if (strcmp(argv[i], "--measure-performance") == 0) args.measurePerformance = true;
@@ -61,11 +68,12 @@ int main(int argc, char *argv[]) {
 
             std::cout << "Available flags:" << std::endl;
             std::cout << "   --settings [PATH]" << std::endl;
+            std::cout << "   --scenario [NAME]" << std::endl;
             std::cout << "   --sound-control" << std::endl;
             std::cout << "   --measure-performance" << std::endl;
             std::cout << "   --enable-mouse" << std::endl;
-            std::cout << "   --follow-mode (count, average)" << std::endl;
-            std::cout << "   --border-mode (bounce, through, kill)" << std::endl;
+            std::cout << "   --follow-mode [count, average]" << std::endl;
+            std::cout << "   --border-mode [bounce, through, kill]" << std::endl;
             std::cout << "   --pause" << std::endl;
             std::cout << "   --help" << std::endl;
 
@@ -88,7 +96,7 @@ int main(int argc, char *argv[]) {
         return 3;
     }
 
-    app.initObjects();
+    app.initObjects(args.scenarioName);
 
     int measureCycles = 0;
     int calculationTime = 0;

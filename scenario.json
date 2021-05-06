@@ -1,0 +1,24 @@
+{
+	"default": {
+        "pheromoneTypes": 1,
+		"objects": [
+            {
+                "type": "colony",
+                "population": 2000
+            }
+        ]
+	},
+    "double": {
+        "pheromoneTypes": 1,
+		"objects": [
+            {
+                "type": "colony",
+                "population": 2000
+            },
+            {
+                "type": "colony",
+                "population": 2000
+            }
+        ]
+	}
+}

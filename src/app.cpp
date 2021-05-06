@@ -1,9 +1,11 @@
 #include <omp.h>
 #include <vector>
+#include <boost/property_tree/ptree.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 #include "settings.hpp"
+#include "scenario.hpp"
 #include "math.hpp"
 #include "classes/cTexture.hpp"
 #include "classes/cAnt.hpp"
@@ -16,12 +18,14 @@
 enum TextureNames {
     TEXTURE_ANT,
     TEXTURE_COLONY,
+    TEXTURE_FOOD,
     TEXTURE_COUNT
 };
 
 const std::string TEXTURE_PATHS[TEXTURE_COUNT] = {
     "data/img/ant.png",
-    "data/img/colony.png"
+    "data/img/colony.png",
+    "data/img/food.png",
 };
 
 class SDL_App {
@@ -45,7 +49,7 @@ class SDL_App {
 
         bool initSDL(bool enableSoundControl);
         bool loadMedia();
-        void initObjects();
+        void initObjects(std::string scenarioName);
         void processData(bool enableMouse);
         void handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode);
         void render();
@@ -127,11 +131,20 @@ bool SDL_App::loadMedia() {
     return true;
 }
 
-void SDL_App::initObjects() {
-    colonies.push_back(new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], settings.ant.max_population));
-    colonies.back()->setPos(rand() % settings.screen_width, rand() % settings.screen_height);
+void SDL_App::initObjects(std::string scenarioName) {
+    Scenario scenario;
+    scenario.load("scenario.json", scenarioName);
+    
+    for (boost::property_tree::ptree::value_type &object : scenario.objects) {
+        std::string objectType = object.second.get<std::string>("type");
+        if (objectType.compare("colony") == 0) {
+            colonies.push_back(new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], object.second.get<int>("population")));
+            colonies.back()->setPos(rand() % settings.screen_width, rand() % settings.screen_height);
+        }
 
-    pheromones = new Pheromones(renderer, settings.screen_width, settings.screen_height, settings.pheromones.screen_resolution, ANT_TYPES_COUNT);
+    }
+
+    pheromones = new Pheromones(renderer, settings.screen_width, settings.screen_height, settings.pheromones.screen_resolution, scenario.feromoneTypes);
 }
 
 void SDL_App::render() {

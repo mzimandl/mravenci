@@ -3,6 +3,7 @@ OBJS = \
 src/main.cpp\
 src/math.cpp\
 src/settings.cpp\
+src/scenario.cpp\
 src/classes/cTimer.cpp\
 src/classes/cTexture.cpp\
 src/classes/cObject.cpp\
