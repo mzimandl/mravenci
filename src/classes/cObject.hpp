@@ -24,8 +24,10 @@ class StaticObject {
 class AntObject: public StaticObject {
     public:
         float radius;
+        int antType;
+        bool antChange;
 
-        AntObject(Texture* t);
+        AntObject(Texture* t, float r, int type, bool change);
 
         bool inRange(StaticObject &obj);
 };

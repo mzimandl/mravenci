@@ -5,11 +5,6 @@
 
 
 
-enum AntTypes {
-    ANT_TYPE_EMPTY,
-    ANT_TYPES_COUNT
-};
-
 enum BorderMode {
     BORDER_BOUNCE,
     BORDER_THROUGH,
@@ -24,7 +19,7 @@ enum FollowMode {
 class Ant: public Object {
     public:
         bool alive, moving;
-        AntTypes type, follow;
+        int type, follow;
 
         Ant(Texture* t);
 

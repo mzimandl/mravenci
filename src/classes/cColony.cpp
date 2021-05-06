@@ -5,8 +5,8 @@
 
 
 
-Colony::Colony(Texture* colonyTexture, Texture* antTexture, int maxPopulation) :
-AntObject(colonyTexture), population(0)
+Colony::Colony(Texture* colonyTexture, Texture* antTexture, int maxPopulation, float r, int type, bool change) :
+AntObject(colonyTexture, r, type, change), population(0)
 {
     ants.resize(maxPopulation);
     for (auto& ant : ants) ant = new Ant(antTexture);
@@ -34,6 +34,8 @@ void Colony::reviveAnts(int N, int speed, int speedVariation) {
                 ant->setAngle(rand() % 360);
                 ant->setSpeed(rand() % speedVariation + speed);
                 ant->alive = true;
+                ant->type = antType;
+                updateFollowType(ant);
                 population++;
                 N--;
             }
@@ -47,4 +49,9 @@ void Colony::reviveAnts(int N, int speed, int speedVariation) {
 
 void Colony::producePh(Pheromones* pheromones, float rate) {
     for (auto& ant : ants) if (ant->alive and ant->moving) ant->producePh(pheromones, rate);
+}
+
+void Colony::updateFollowType(Ant* ant) {
+    if (followMap.find(ant->type) != followMap.end())
+        ant->follow = followMap[ant->type];
 }

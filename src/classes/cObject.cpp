@@ -32,8 +32,8 @@ void StaticObject::setTexture(Texture* newTexture) {
 
 
 
-AntObject::AntObject(Texture* t) :
-StaticObject(t), radius(0)
+AntObject::AntObject(Texture* t, float r, int type, bool change) :
+StaticObject(t), radius(r), antType(type), antChange(change)
 {}
 
 bool AntObject::inRange(StaticObject &obj) {

@@ -138,8 +138,18 @@ void SDL_App::initObjects(std::string scenarioName) {
     for (boost::property_tree::ptree::value_type &object : scenario.objects) {
         std::string objectType = object.second.get<std::string>("type");
         if (objectType.compare("colony") == 0) {
-            colonies.push_back(new Colony(textures[TEXTURE_COLONY], textures[TEXTURE_ANT], object.second.get<int>("population")));
+            colonies.push_back(new Colony(
+                textures[TEXTURE_COLONY],
+                textures[TEXTURE_ANT],
+                object.second.get<int>("population"),
+                object.second.get<float>("radius"),
+                object.second.get<int>("antType"),
+                object.second.get<bool>("antChange")
+            ));
             colonies.back()->setPos(rand() % settings.screen_width, rand() % settings.screen_height);
+
+            for (boost::property_tree::ptree::value_type &follow : object.second.get_child("antFollow"))
+                colonies.back()->followMap[std::stoi(follow.first)] = follow.second.get_value<int>();
         }
 
     }
@@ -148,7 +158,7 @@ void SDL_App::initObjects(std::string scenarioName) {
 }
 
 void SDL_App::render() {
-    pheromones->render(ANT_TYPE_EMPTY);
+    pheromones->render(0);
     for (auto &colony : colonies) colony->renderAnts(settings.ant.render_scale);
     for (auto &colony : colonies) colony->render();
     SDL_RenderPresent(renderer);
@@ -201,6 +211,11 @@ void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, B
                     normalizeAngle(ant->angle);
                     ant->move(timeStep);
                     ant->checkWallCollision(settings.screen_width, settings.screen_height, borderMode);
+
+                    if (colony->antChange and ant->type != colony->antType and colony->inRange(*ant)) {
+                        ant->type = colony->antType;
+                        colony->updateFollowType(ant);
+                    }
                 }
             }
         }

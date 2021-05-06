@@ -4,7 +4,13 @@
 		"objects": [
             {
                 "type": "colony",
-                "population": 2000
+                "population": 2000,
+                "antType": 0,
+                "radius": 25,
+                "antChange": 0,
+                "antFollow": {
+                    "0": 0
+                }
             }
         ]
 	},
