@@ -29,7 +29,7 @@ class AntObject: public StaticObject {
 
         AntObject(Texture* t, float r, int type, bool change);
 
-        bool inRange(StaticObject &obj);
+        bool inRange(StaticObject *obj);
 };
 
 class Object: public StaticObject {

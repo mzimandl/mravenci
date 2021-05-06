@@ -36,9 +36,9 @@ AntObject::AntObject(Texture* t, float r, int type, bool change) :
 StaticObject(t), radius(r), antType(type), antChange(change)
 {}
 
-bool AntObject::inRange(StaticObject &obj) {
-    int dx = pos.x - obj.pos.x;
-    int dy = pos.y - obj.pos.y;
+bool AntObject::inRange(StaticObject *obj) {
+    int dx = pos.x - obj->pos.x;
+    int dy = pos.y - obj->pos.y;
 
     if (abs(dx) < radius and abs(dy) < radius) if (dx*dx + dy*dy < radius*radius)
         return true;
