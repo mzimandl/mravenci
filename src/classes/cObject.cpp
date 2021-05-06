@@ -10,7 +10,7 @@
 
 
 StaticObject::StaticObject(Texture* t) :
-texture(t), angle(0), radius(0)
+texture(t), angle(0)
 {}
 
 void StaticObject::setPos(float x, float y) {
@@ -30,7 +30,13 @@ void StaticObject::setTexture(Texture* newTexture) {
     texture = newTexture;
 }
 
-bool StaticObject::inRange(StaticObject &obj) {
+
+
+AntObject::AntObject(Texture* t) :
+StaticObject(t), radius(0)
+{}
+
+bool AntObject::inRange(StaticObject &obj) {
     int dx = pos.x - obj.pos.x;
     int dy = pos.y - obj.pos.y;
 
@@ -39,6 +45,8 @@ bool StaticObject::inRange(StaticObject &obj) {
 
     return false;
 }
+
+
 
 Object::Object(Texture* t) :
 StaticObject(t), speed(0)

@@ -1,11 +1,12 @@
 #include "cTexture.hpp"
 #include "cAnt.hpp"
+#include "cObject.hpp"
 #include "cColony.hpp"
 
 
 
 Colony::Colony(Texture* colonyTexture, Texture* antTexture, int maxPopulation) :
-StaticObject(colonyTexture), population(0)
+AntObject(colonyTexture), population(0)
 {
     ants.resize(maxPopulation);
     for (auto& ant : ants) ant = new Ant(antTexture);

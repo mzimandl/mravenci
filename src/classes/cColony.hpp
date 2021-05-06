@@ -7,7 +7,7 @@
 
 
 
-class Colony: public StaticObject {
+class Colony: public AntObject {
     private:
         int population;
 

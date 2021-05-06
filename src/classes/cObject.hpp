@@ -12,7 +12,6 @@ class StaticObject {
     public:
         SDL_FPoint pos;
         float angle;
-        float radius;
 
         StaticObject(Texture* t);
 
@@ -20,6 +19,14 @@ class StaticObject {
         void setAngle(float a);
         void render(float scale = 1);
         void setTexture(Texture* texture);
+};
+
+class AntObject: public StaticObject {
+    public:
+        float radius;
+
+        AntObject(Texture* t);
+
         bool inRange(StaticObject &obj);
 };
 
