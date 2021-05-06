@@ -9,18 +9,8 @@
 
 
 
-bool inRange(StaticObject* obj1, StaticObject* obj2, int d) {
-    int dx = obj1->pos.x - obj2->pos.x;
-    int dy = obj1->pos.y - obj2->pos.y;
-
-    if (abs(dx) < d and abs(dy) < d) if (dx*dx + dy*dy < d*d)
-        return true;
-
-    return false;
-}
-
 StaticObject::StaticObject(Texture* t) :
-texture(t), angle(0)
+texture(t), angle(0), radius(0)
 {}
 
 void StaticObject::setPos(float x, float y) {
@@ -38,6 +28,16 @@ void StaticObject::render(float scale) {
 
 void StaticObject::setTexture(Texture* newTexture) {
     texture = newTexture;
+}
+
+bool StaticObject::inRange(StaticObject &obj) {
+    int dx = pos.x - obj.pos.x;
+    int dy = pos.y - obj.pos.y;
+
+    if (abs(dx) < radius and abs(dy) < radius) if (dx*dx + dy*dy < radius*radius)
+        return true;
+
+    return false;
 }
 
 Object::Object(Texture* t) :
