@@ -7,7 +7,7 @@
 class Pheromones {
     private:
         SDL_Renderer* renderer;
-        SDL_Texture* texture;
+        std::vector<SDL_Texture* > textures;
 
     public:
         int width, height;
@@ -18,5 +18,6 @@ class Pheromones {
         ~Pheromones();
 
         void render(int type);
+        void renderAll();
         void decay(float rate);
 };

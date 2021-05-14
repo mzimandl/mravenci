@@ -5,9 +5,9 @@
             {
                 "type": "colony",
                 "population": 2000,
-                "antType": 0,
                 "radius": 25,
-                "antChange": 0,
+                "antType": 0,
+                "antChange": false,
                 "antFollow": {
                     "0": 0
                 }
@@ -20,9 +20,9 @@
             {
                 "type": "colony",
                 "population": 2000,
-                "antType": 0,
                 "radius": 25,
-                "antChange": 1,
+                "antType": 0,
+                "antChange": true,
                 "antFollow": {
                     "0": 1,
                     "1": 0
@@ -30,9 +30,38 @@
             },
             {
                 "type": "food",
-                "antType": 1,
                 "radius": 25,
-                "antChange": 1
+                "antType": 1,
+                "antChange": true
+            }
+        ]
+	},
+    "tripple": {
+        "pheromoneTypes": 3,
+		"objects": [
+            {
+                "type": "colony",
+                "population": 2000,
+                "radius": 25,
+                "antType": 0,
+                "antChange": true,
+                "antFollow": {
+                    "0": 1,
+                    "1": 2,
+                    "2": 0
+                }
+            },
+            {
+                "type": "food",
+                "radius": 25,
+                "antType": 1,
+                "antChange": true
+            },
+            {
+                "type": "food",
+                "radius": 25,
+                "antType": 2,
+                "antChange": true
             }
         ]
 	}

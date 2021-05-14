@@ -108,6 +108,7 @@ bool SDL_App::initSDL(bool enableSoundControl) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s", SDL_GetError());
         return false;
     }
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
     //Init SDL image
     int imgFlags = IMG_INIT_PNG|IMG_INIT_JPG;
@@ -166,7 +167,8 @@ void SDL_App::initObjects(std::string scenarioName) {
 }
 
 void SDL_App::render() {
-    pheromones->render(0);
+    SDL_RenderClear(renderer);
+    pheromones->renderAll();
     for (auto &colony : colonies) colony->renderAnts(settings.ant.render_scale);
     for (auto &colony : colonies) colony->render();
     for (auto &food : foods) food->render();
