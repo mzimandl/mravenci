@@ -7,10 +7,10 @@
                 "population": 2000,
                 "radius": 25,
                 "antType": 0,
-                "antChange": false,
                 "antFollow": {
                     "0": 0
-                }
+                },
+                "antChange": false
             }
         ]
 	},
@@ -22,11 +22,11 @@
                 "population": 2000,
                 "radius": 25,
                 "antType": 0,
-                "antChange": true,
                 "antFollow": {
                     "0": 1,
                     "1": 0
-                }
+                },
+                "antChange": true
             },
             {
                 "type": "food",
@@ -36,7 +36,67 @@
             }
         ]
 	},
+    "double": {
+        "pheromoneTypes": 2,
+		"objects": [
+            {
+                "type": "colony",
+                "population": 1000,
+                "radius": 25,
+                "antType": 0,
+                "antFollow": {
+                    "0": 0
+                },
+                "antChange": false
+            },
+            {
+                "type": "colony",
+                "population": 1000,
+                "radius": 25,
+                "antType": 1,
+                "antFollow": {
+                    "1": 1
+                },
+                "antChange": false
+            }
+        ]
+	},
     "tripple": {
+        "pheromoneTypes": 3,
+		"objects": [
+            {
+                "type": "colony",
+                "population": 666,
+                "radius": 25,
+                "antType": 0,
+                "antFollow": {
+                    "0": 0
+                },
+                "antChange": false
+            },
+            {
+                "type": "colony",
+                "population": 666,
+                "radius": 25,
+                "antType": 1,
+                "antFollow": {
+                    "1": 1
+                },
+                "antChange": false
+            },
+            {
+                "type": "colony",
+                "population": 666,
+                "radius": 25,
+                "antType": 2,
+                "antFollow": {
+                    "2": 2
+                },
+                "antChange": false
+            }
+        ]
+	},
+    "triangle": {
         "pheromoneTypes": 3,
 		"objects": [
             {
@@ -44,12 +104,12 @@
                 "population": 2000,
                 "radius": 25,
                 "antType": 0,
-                "antChange": true,
                 "antFollow": {
                     "0": 1,
                     "1": 2,
                     "2": 0
-                }
+                },
+                "antChange": true
             },
             {
                 "type": "food",
