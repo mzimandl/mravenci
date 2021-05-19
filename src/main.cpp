@@ -14,11 +14,11 @@ struct Args {
     bool measurePerformance;
     bool enableMouse;
     bool pause;
-    bool soundControl;
     std::string settingsPath;
     std::string scenarioName;
     FollowMode followMode;
     BorderMode borderMode;
+    SoundMode soundMode;
 };
 
 int main(int argc, char *argv[]) {
@@ -26,9 +26,9 @@ int main(int argc, char *argv[]) {
     args.measurePerformance = false;
     args.enableMouse = false;
     args.pause = false;
-    args.soundControl = false;
     args.followMode = FOLLOW_COUNT;
     args.borderMode = BORDER_BOUNCE;
+    args.soundMode = SOUND_OFF;
     args.settingsPath = "settings.json";
     args.scenarioName = "default";
 
@@ -43,7 +43,6 @@ int main(int argc, char *argv[]) {
             if (i >= argc) {std::cout << "Missing scenario name" << std::endl; return 1;}
             args.scenarioName = argv[i];
         }
-        else if (strcmp(argv[i], "--sound-control") == 0) args.soundControl = true;
         else if (strcmp(argv[i], "--measure-performance") == 0) args.measurePerformance = true;
         else if (strcmp(argv[i], "--enable-mouse") == 0) args.enableMouse = true;
         else if (strcmp(argv[i], "--follow-mode") == 0) {
@@ -60,6 +59,14 @@ int main(int argc, char *argv[]) {
             else if (strcmp(argv[i], "through") == 0) args.borderMode = BORDER_THROUGH;
             else if (strcmp(argv[i], "kill") == 0) args.borderMode = BORDER_KILL;
             else {std::cout << "Unknown border mode value. Allowed values: 'bounce', 'through', 'kill'" << std::endl; return 1;}
+        }
+        else if (strcmp(argv[i], "--sound-mode") == 0) {
+            i++;
+            if (i >= argc) {std::cout << "Missing border mode value" << std::endl; return 1;}
+            else if (strcmp(argv[i], "off") == 0) args.soundMode = SOUND_OFF;
+            else if (strcmp(argv[i], "shock") == 0) args.soundMode = SOUND_SHOCK;
+            else if (strcmp(argv[i], "speed") == 0) args.soundMode = SOUND_SPEED;
+            else {std::cout << "Unknown sound mode value. Allowed values: 'off', 'shock', 'speed'" << std::endl; return 1;}
         }
         else if (strcmp(argv[i], "--pause") == 0) args.pause = true;
         else {
@@ -86,7 +93,7 @@ int main(int argc, char *argv[]) {
 
     SDL_App app(settings);
 
-    if(!app.initSDL(args.soundControl)) {
+    if(!app.initSDL(args.soundMode > 0)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialization failed");
         return 3;
     }
@@ -161,7 +168,7 @@ int main(int argc, char *argv[]) {
         app.processData(args.enableMouse);
         if (!args.pause)
             for (int i=0; i<settings.steps_per_frame; i++) {
-                app.handleAnts(args.enableMouse, follow and followCycles % settings.pheromones.follow_step == 0, args.followMode, args.borderMode);
+                app.handleAnts(args.enableMouse, follow and followCycles % settings.pheromones.follow_step == 0, args.followMode, args.borderMode, args.soundMode);
                 if (followCycles == settings.pheromones.follow_step) followCycles = 1; else followCycles++;
             }
 

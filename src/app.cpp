@@ -51,7 +51,7 @@ class SDL_App {
         bool loadMedia();
         void initObjects(std::string scenarioName);
         void processData(bool enableMouse);
-        void handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode);
+        void handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode, SoundMode soundMode);
         void render();
 };
 
@@ -180,17 +180,25 @@ void SDL_App::processData(bool enableMouse) {
     if (enableMouse) SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
 }
 
-void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode) {
+void SDL_App::handleAnts(bool enableMouse, bool follow, FollowMode followMode, BorderMode borderMode, SoundMode soundMode) {
     float timeStep = settings.time_step;
     float randomTurn = settings.ant.max_random_turn;
 
     if (soundControl != NULL) {
-        int volumeIncrease = std::max(0, soundControl->avgVolumeChange());
-        follow = volumeIncrease < settings.sound_control_disturb_level and follow;
-        timeStep += 0.1*(float)volumeIncrease/(float)UINT8_MAX;
-        randomTurn += volumeIncrease;
 
-        //timeStep = 0.005*soundControl->lastVolume();
+        switch (soundMode) {
+            int volumeIncrease;
+            case SOUND_SHOCK:
+                volumeIncrease = std::max(0, soundControl->avgVolumeChange());
+                follow = volumeIncrease < settings.sound_control_disturb_level and follow;
+                timeStep += 0.1*(float)volumeIncrease/(float)UINT8_MAX;
+                randomTurn += volumeIncrease;
+                break;
+
+            case SOUND_SPEED:
+                timeStep = 0.005*soundControl->lastVolume();
+                break;
+        }
     }
 
     pheromones->decay(settings.pheromones.decay_rate);

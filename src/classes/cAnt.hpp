@@ -16,6 +16,12 @@ enum FollowMode {
     FOLLOW_AVEARGE
 };
 
+enum SoundMode {
+    SOUND_OFF,
+    SOUND_SHOCK,
+    SOUND_SPEED
+};
+
 class Ant: public Object {
     public:
         bool alive, moving;
