@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         }
         else if (strcmp(argv[i], "--sound-mode") == 0) {
             i++;
-            if (i >= argc) {std::cout << "Missing border mode value" << std::endl; return 1;}
+            if (i >= argc) {std::cout << "Missing sound mode value" << std::endl; return 1;}
             else if (strcmp(argv[i], "off") == 0) args.soundMode = SOUND_OFF;
             else if (strcmp(argv[i], "shock") == 0) args.soundMode = SOUND_SHOCK;
             else if (strcmp(argv[i], "speed") == 0) args.soundMode = SOUND_SPEED;
@@ -76,11 +76,11 @@ int main(int argc, char *argv[]) {
             std::cout << "Available flags:" << std::endl;
             std::cout << "   --settings [PATH]" << std::endl;
             std::cout << "   --scenario [NAME]" << std::endl;
-            std::cout << "   --sound-control" << std::endl;
             std::cout << "   --measure-performance" << std::endl;
             std::cout << "   --enable-mouse" << std::endl;
             std::cout << "   --follow-mode [count, average]" << std::endl;
             std::cout << "   --border-mode [bounce, through, kill]" << std::endl;
+            std::cout << "   --sound-mode [off, shock, speed]" << std::endl;
             std::cout << "   --pause" << std::endl;
             std::cout << "   --help" << std::endl;
 
